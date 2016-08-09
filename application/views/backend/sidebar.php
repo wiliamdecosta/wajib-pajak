@@ -34,35 +34,35 @@
         </a>
     </li>
 
-    <li class="nav-item" data-source="transaksi-harian">
+    <li class="nav-item" data-source="wp.transaksi_harian">
         <a href="#" class="nav-link nav-toggle">
             <i class="icon-home"></i>
             <span class="title">Transaksi Harian WP</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="pelaporan-pajak">
+    <li class="nav-item" data-source="wp.pelaporan_pajak">
         <a href="#" class="nav-link nav-toggle">
             <i class="icon-home"></i>
             <span class="title">Pelaporan Pajak</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="history-transaksi">
+    <li class="nav-item" data-source="wp.history_transaksi">
         <a href="#" class="nav-link nav-toggle">
             <i class="icon-home"></i>
             <span class="title">History Transaksi</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="inbox">
+    <li class="nav-item" data-source="wp.inbox">
         <a href="#" class="nav-link nav-toggle">
             <i class="icon-home"></i>
             <span class="title">Inbox</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="outbox">
+    <li class="nav-item" data-source="wp.outbox">
         <a href="#" class="nav-link nav-toggle">
             <i class="icon-home"></i>
             <span class="title">Outbox</span>
