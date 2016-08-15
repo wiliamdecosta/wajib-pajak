@@ -29,42 +29,42 @@
     </li>
     <li class="nav-item active" data-source="dashboard">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-institution"></i>
             <span class="title">Dashboard</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="wp.transaksi_harian">
+    <li class="nav-item" data-source="transaksi.transaksi_harian">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-calendar-check-o"></i>
             <span class="title">Transaksi Harian WP</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="wp.pelaporan_pajak">
+    <li class="nav-item" data-source="pelaporan.pelaporan_pajak">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-newspaper-o"></i>
             <span class="title">Pelaporan Pajak</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="wp.history_transaksi">
+    <li class="nav-item" data-source="history.history_transaksi">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-history"></i>
             <span class="title">History Transaksi</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="wp.inbox">
+    <li class="nav-item" data-source="message.inbox_message">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-inbox"></i>
             <span class="title">Inbox</span>
         </a>
     </li>
 
-    <li class="nav-item" data-source="wp.outbox">
+    <li class="nav-item" data-source="outbox">
         <a href="#" class="nav-link nav-toggle">
-            <i class="icon-home"></i>
+            <i class="fa fa-envelope-o"></i>
             <span class="title">Outbox</span>
         </a>
     </li>

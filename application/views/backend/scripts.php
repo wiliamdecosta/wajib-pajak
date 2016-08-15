@@ -100,7 +100,9 @@
     $("#my-profile").click(function(event){
         event.stopPropagation();
         $(".nav-item").removeClass("active");
-        loadContentWithParams('profile',{});
+        loadContentWithParams('profile.profile_form',{
+			
+		});
     });
 
     $.jgrid.defaults.responsive = true;

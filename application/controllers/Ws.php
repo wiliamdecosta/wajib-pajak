@@ -60,7 +60,7 @@ class Ws extends CI_Controller {
 
 		header('Content-Type: application/json');
 		echo json_encode($result);
-        session_write_close();
+        //session_write_close();
 	}
 
 
@@ -90,7 +90,7 @@ class Ws extends CI_Controller {
 
 		header('Content-Type: application/json');
 		echo json_encode($result);
-        session_write_close();
+        //session_write_close();
 	}
 }
 
