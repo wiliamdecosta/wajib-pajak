@@ -1,26 +1,28 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
 * Json library
-* @class Warehouse_controller
+* @class Users_controller
 * @version 07/05/2015 12:18:00
 */
-class History_transaksi_controller {
+class Bulan_pajak_controller {
 
     function read() {
-
-        $page = getVarClean('page','int',1);
+		
+		$page = getVarClean('page','int',1);
         $limit = getVarClean('rows','int',5);
-        $sidx = getVarClean('sidx','str','t_vat_setllement_id');
+        $sidx = getVarClean('sidx','str','p_finance_period_id');
         $sord = getVarClean('sord','str','desc');
 
+        $user_name = getVarClean('user_name','str',32);        
+
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
-		
-		$t_cust_account_id = 2;
+
         try {
 
             $ci = & get_instance();
-            $ci->load->model('history/history_transaksi');
-			$table = new History_transaksi($t_cust_account_id);
+            $ci->load->model('pelaporan/pelaporan_bulan');
+            $table= $ci->pelaporan_bulan;
+			// $table = $tables->transaction_query;
 
             $req_param = array(
                 "sort_by" => $sidx,
@@ -70,25 +72,35 @@ class History_transaksi_controller {
 
         return $data;
     }
+	function daily_transaction(){
+		$ci = & get_instance();
+		$ci->load->model('pelaporan/pelaporan_bulan');
+		$table = $ci->pelaporan_bulan;
 
+		$reftype = getVarClean('user_name','str','');
+		$sql = "select t_cust_account_id,npwd from sikp.f_get_npwd_by_username('". $user_name ."')";
+		$query = $this->db->query($sql);
+		
+	}
+	
     function crud() {
 
         $data = array();
         $oper = getVarClean('oper', 'str', '');
         switch ($oper) {
-            case 'add' :               
+            case 'add' :
                 $data = $this->create();
             break;
 
-            case 'edit' :                
+            case 'edit' :
                 $data = $this->update();
             break;
 
-            case 'del' :                
+            case 'del' :
                 $data = $this->destroy();
             break;
 
-            default :                
+            default:
                 $data = $this->read();
             break;
         }
@@ -98,10 +110,10 @@ class History_transaksi_controller {
 
 
     function create() {
-
+		$user_name = getVarClean('user_name','str',32);
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('pelaporan/pelaporan_bulan');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -171,8 +183,8 @@ class History_transaksi_controller {
     function update() {
 
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('pelaporan/pelaporan_bulan');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -242,8 +254,8 @@ class History_transaksi_controller {
 
     function destroy() {
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('pelaporan/pelaporan_bulan');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -266,7 +278,7 @@ class History_transaksi_controller {
                 $items = (int) $items;
                 if (empty($items)){
                     throw new Exception('Empty parameter');
-                };
+                }
 
                 $table->remove($items);
                 $data['rows'][] = array($table->pkey => $items);
@@ -285,40 +297,5 @@ class History_transaksi_controller {
             $data['total'] = 0;
         }
         return $data;
-    }
-	
-	public function getnpwd(){
-		
-		$data = array('rows' => array(), 'success' => false, 'message' => '');
-		try{
-			$result = "";
-			$ci = & get_instance();
-			$ci->load->model('history/history_transaksi');
-			$table = new History_transaksi(0);		
-			$user_name =  $ci->session->userdata('user_name');
-			
-			$sql = "select ty_lov_npwd as t_cust_account_id, npwd, company_name,
-					p_vat_type_id, vat_code, p_vat_type_dtl_id, vat_code_dtl
-					from f_get_npwd_by_username('". $user_name ."') AS tbl (ty_lov_npwd)";
-			
-			$q = $ci->db->query($sql);
-			$result = $q->row_array();
-			
-			$data['rows'] = $result;
-			$data['success'] = true;
-			$data['message'] = 'data suceeded';
-
-		}
-		catch (Exception $e) {
-            $table->db->trans_rollback(); //Rollback Trans
-            $data['message'] = $e->getMessage();
-            $data['rows'] = array();
-        }
-		
-		echo json_encode($data);
-		exit;
-	}
-
+    }    
 }
-
-/* End of file Warehouse_controller.php */

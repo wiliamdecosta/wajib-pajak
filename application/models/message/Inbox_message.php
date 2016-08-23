@@ -6,9 +6,9 @@
  * @since 23-10-2012 12:07:20
  * @author hilman farid
  */
-class History_transaksi extends Abstract_model{
+class Inbox_message extends Abstract_model{
     /* Table name */
-    public $table = 't_vat_setllement';
+    public $table = 't_message_inbox';
     /* Alias for table */
     public $alias = '';
     /* List of table fields */
@@ -25,10 +25,10 @@ class History_transaksi extends Abstract_model{
     public $refs = array();
     
     /* select from clause for getAll and countAll */
-    public $selectClause = "select inbox.*,to_char(inbox.creation_date, 'yyyy-mm-dd') AS creation_date,to_char(inbox.creation_date, 'HH24:MI:SS PM') as creation_time, 
+    public $selectClause = "inbox.*,to_char(inbox.creation_date, 'yyyy-mm-dd') AS creation_date,to_char(inbox.creation_date, 'HH24:MI:SS PM') as creation_time, 
                                 to_char(inbox.update_date, 'yyyy-mm-dd') AS update_date,mtype.message_type";
 
-    public $fromClause = " from t_message_inbox inbox
+    public $fromClause = " t_message_inbox inbox
                          left join sikp.p_message_type mtype on mtype.p_message_type_id = inbox.p_message_type_id";
 
     function __construct($t_cust_account_id = ''){

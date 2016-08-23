@@ -8,8 +8,12 @@ class Transaksi_harian_controller {
 
     function read() {
 
-        $user_name = getVarClean('user_name','str',32);        
-
+        // $user_name = getVarClean('user_name','str',32);        
+		$page = getVarClean('page','int',1);
+        $limit = getVarClean('rows','int',5);
+        $sidx = getVarClean('sidx','str','t_cust_account_id');
+        $sord = getVarClean('sord','str','desc');
+		
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
         try {
@@ -17,6 +21,7 @@ class Transaksi_harian_controller {
             $ci = & get_instance();
             $ci->load->model('transaksi/transaksi_harian');
             $table= $ci->transaksi_harian;
+			
 			// $table = $tables->transaction_query;
 
             $req_param = array(
@@ -35,9 +40,21 @@ class Transaksi_harian_controller {
 
             // Filter Table
             $req_param['where'] = array();
-
+			// print_r($ci->session->userdata('cust_account_id'));exit;
+			$table->setCriteria("
+			t_cust_acc_dtl_trans.t_cust_account_id = ". $ci->session->userdata('cust_account_id') ." AND 
+			trans_date >= CASE
+					WHEN  t_vat_setllement.start_period is null THEN p_finance_period.start_date
+					ELSE t_vat_setllement.start_period
+				END
+			AND 
+			trans_date <= CASE
+					WHEN  t_vat_setllement.end_period is null THEN p_finance_period.end_date
+					ELSE t_vat_setllement.end_period
+				END");
+			
             $table->setJQGridParam($req_param);
-            $count = $table->countAll();
+            $count = $table->countAllData();			
 
             if ($count > 0) $total_pages = ceil($count / $limit);
             else $total_pages = 1;
@@ -58,7 +75,8 @@ class Transaksi_harian_controller {
             $data['total'] = $total_pages;
             $data['records'] = $count;
 
-            $data['rows'] = $table->getAll();
+            $data['rows'] = $table->getAllData();
+			
             $data['success'] = true;
 
         }catch (Exception $e) {
@@ -67,17 +85,7 @@ class Transaksi_harian_controller {
 
         return $data;
     }
-	function daily_transaction(){
-		$ci = & get_instance();
-		$ci->load->model('customer/search_customer');
-		$table = $ci->search_customer;
-
-		$reftype = getVarClean('user_name','str','');
-		$sql = "select t_cust_account_id,npwd from sikp.f_get_npwd_by_username('". $user_name ."')";
-		$query = $this->db->query($sql);
 		
-	}
-	
     function crud() {
 
         $data = array();
@@ -112,7 +120,7 @@ class Transaksi_harian_controller {
 		$user_name = getVarClean('user_name','str',32);
         $ci = & get_instance();
         $ci->load->model('transaksi/transaksi_harian');
-        $table = $ci->users;
+        $table = $ci->transaksi_harian;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -183,7 +191,7 @@ class Transaksi_harian_controller {
 
         $ci = & get_instance();
         $ci->load->model('transaksi/transaksi_harian');
-        $table = $ci->users;
+        $table = $ci->transaksi_harian;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -254,7 +262,7 @@ class Transaksi_harian_controller {
     function destroy() {
         $ci = & get_instance();
         $ci->load->model('transaksi/transaksi_harian');
-        $table = $ci->users;
+        $table = $ci->transaksi_harian;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -296,64 +304,5 @@ class Transaksi_harian_controller {
             $data['total'] = 0;
         }
         return $data;
-    }
-
-    function html_select_options_status() {
-        try {
-            echo '<select>';
-            echo '<option value="1"> Active </option>';
-            echo '<option value="0"> Not Active </option>';
-            echo '</select>';
-            exit;
-        }catch (Exception $e) {
-            echo $e->getMessage();
-            exit;
-        }
-    }
-
-    function updateProfile() {
-
-        $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
-        $id = getVarClean('id','int',0);
-        $email = getVarClean('email','str','');
-        $password = getVarClean('password','str','');
-        $password_confirmation = getVarClean('password_confirmation','str','');
-
-        try {
-            $ci = & get_instance();
-            $ci->load->model('administration/users');
-            $table = $ci->users;
-
-            if(empty($id)) throw new Exception('ID tidak boleh kosong');
-            if(empty($email)) throw new Exception('Email tidak boleh kosong');
-
-            $item = $table->get($id);
-            if($item == null) throw new Exception('ID tidak ditemukan');
-
-            $record = array();
-            if(!empty($password)) {
-                if(strlen($password) < 4) throw new Exception('Min.Password 4 Karakter');
-                if($password != $password_confirmation) throw new Exception('Password tidak cocok');
-
-                $record['password'] = $ci->ion_auth_model->hash_password($password);
-            }
-            $record['email'] = $email;
-            $record['id'] = $id;
-
-            $table->actionType = 'UPDATE';
-            $table->db->trans_begin(); //Begin Trans
-                $table->setRecord($record);
-                $table->update();
-            $table->db->trans_commit(); //Commit Trans
-
-
-            $data['success'] = true;
-            $data['message'] = 'Data profile berhasil diupdate';
-        }catch (Exception $e) {
-            $table->db->trans_rollback(); //Rollback Trans
-            $data['message'] = $e->getMessage();
-        }
-
-        return $data;
-    }
+    }     
 }

@@ -1,26 +1,23 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
 * Json library
-* @class Warehouse_controller
+* @class Users_controller
 * @version 07/05/2015 12:18:00
 */
-class History_transaksi_controller {
+class Pelaporan_pajak_controller {
 
     function read() {
 
-        $page = getVarClean('page','int',1);
-        $limit = getVarClean('rows','int',5);
-        $sidx = getVarClean('sidx','str','t_vat_setllement_id');
-        $sord = getVarClean('sord','str','desc');
+        $user_name = getVarClean('user_name','str',32);        
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
-		
-		$t_cust_account_id = 2;
+
         try {
 
             $ci = & get_instance();
-            $ci->load->model('history/history_transaksi');
-			$table = new History_transaksi($t_cust_account_id);
+            $ci->load->model('transaksi/transaksi_harian');
+            $table= $ci->transaksi_harian;
+			// $table = $tables->transaction_query;
 
             $req_param = array(
                 "sort_by" => $sidx,
@@ -70,25 +67,39 @@ class History_transaksi_controller {
 
         return $data;
     }
+	function daily_transaction(){
+		$ci = & get_instance();
+		$ci->load->model('customer/search_customer');
+		$table = $ci->search_customer;
 
+		$reftype = getVarClean('user_name','str','');
+		$sql = "select t_cust_account_id,npwd from sikp.f_get_npwd_by_username('". $user_name ."')";
+		$query = $this->db->query($sql);
+		
+	}
+	
     function crud() {
 
         $data = array();
         $oper = getVarClean('oper', 'str', '');
         switch ($oper) {
-            case 'add' :               
+            case 'add' :
+                // permission_check('add-user');
                 $data = $this->create();
             break;
 
-            case 'edit' :                
+            case 'edit' :
+                // permission_check('edit-user');
                 $data = $this->update();
             break;
 
-            case 'del' :                
+            case 'del' :
+                // permission_check('delete-user');
                 $data = $this->destroy();
             break;
 
-            default :                
+            default:
+                // permission_check('view-user');
                 $data = $this->read();
             break;
         }
@@ -98,10 +109,10 @@ class History_transaksi_controller {
 
 
     function create() {
-
+		$user_name = getVarClean('user_name','str',32);
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('transaksi/transaksi_harian');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -171,8 +182,8 @@ class History_transaksi_controller {
     function update() {
 
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('transaksi/transaksi_harian');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -242,8 +253,8 @@ class History_transaksi_controller {
 
     function destroy() {
         $ci = & get_instance();
-        $ci->load->model('history/history_transaksi');
-        $table = $ci->history_transaksi;
+        $ci->load->model('transaksi/transaksi_harian');
+        $table = $ci->users;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -266,7 +277,7 @@ class History_transaksi_controller {
                 $items = (int) $items;
                 if (empty($items)){
                     throw new Exception('Empty parameter');
-                };
+                }
 
                 $table->remove($items);
                 $data['rows'][] = array($table->pkey => $items);
@@ -286,39 +297,110 @@ class History_transaksi_controller {
         }
         return $data;
     }
-	
-	public function getnpwd(){
+
+    function html_select_options_status() {
+        try {
+            echo '<select>';
+            echo '<option value="1"> Active </option>';
+            echo '<option value="0"> Not Active </option>';
+            echo '</select>';
+            exit;
+        }catch (Exception $e) {
+            echo $e->getMessage();
+            exit;
+        }
+    }
+
+    public function getCustAccMonth(){
 		
 		$data = array('rows' => array(), 'success' => false, 'message' => '');
 		try{
 			$result = "";
 			$ci = & get_instance();
-			$ci->load->model('history/history_transaksi');
-			$table = new History_transaksi(0);		
-			$user_name =  $ci->session->userdata('user_name');
+			$ci->load->model('transaksi/transaksi_harian');
+			$table= $ci->transaksi_harian;
 			
-			$sql = "select ty_lov_npwd as t_cust_account_id, npwd, company_name,
-					p_vat_type_id, vat_code, p_vat_type_dtl_id, vat_code_dtl
-					from f_get_npwd_by_username('". $user_name ."') AS tbl (ty_lov_npwd)";
-			
-			$q = $ci->db->query($sql);
+			$user_name = $ci->session->userdata('user_name');
+			if(empty($t_cust_account_id))$qs = $table->db->query("select t_cust_account_id,npwd from sikp.f_get_npwd_by_username('".$user_name."')");
+			$arr_npwd = $qs->row_array();
+			// print_r($arr_npwd);exit;
+			$q = " SELECT
+                        		 '".$arr_npwd['npwd']."' as npwd,
+                        		 t_cust_acc_dtl_trans.t_cust_account_id,
+                        		 sum(t_cust_acc_dtl_trans.service_charge) as jum_trans,
+                        		 sum(t_cust_acc_dtl_trans.vat_charge) as jum_pajak,
+                                 t_cust_acc_dtl_trans.p_vat_type_dtl_id,
+                        		 p_finance_period.p_finance_period_id,
+                        		 p_finance_period.code,
+                        		 t_customer_order.p_order_status_id,
+                        		 case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END as start_period,
+                             case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END as end_period
+                        FROM
+                             t_cust_acc_dtl_trans
+                        LEFT JOIN p_finance_period on to_char(trans_date, 'YYYY-MM') = to_char(p_finance_period.start_date, 'YYYY-MM')
+                        LEFT JOIN t_vat_setllement on t_cust_acc_dtl_trans.t_cust_account_id = t_vat_setllement.t_cust_account_id and  p_finance_period.p_finance_period_id = t_vat_setllement.p_finance_period_id 
+                        LEFT JOIN t_customer_order on t_customer_order.t_customer_order_id = t_vat_setllement.t_customer_order_id
+                        WHERE
+                             t_cust_acc_dtl_trans.t_cust_account_id < ".$arr_npwd['t_cust_account_id']." AND 
+                        		 trans_date >= CASE
+                        				WHEN  t_vat_setllement.start_period is null THEN p_finance_period.start_date
+                        				ELSE t_vat_setllement.start_period
+                        			END
+                        		AND 
+                        		trans_date <= CASE
+                        				WHEN  t_vat_setllement.end_period is null THEN p_finance_period.end_date
+                        				ELSE t_vat_setllement.end_period
+                        			END
+                        GROUP BY
+                        		 t_cust_acc_dtl_trans.t_cust_account_id,
+                                 t_cust_acc_dtl_trans.p_vat_type_dtl_id,
+                        		 p_finance_period.p_finance_period_id,
+                        		 p_finance_period.code,
+                        		 t_customer_order.p_order_status_id,
+                        		 case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END,
+                             case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END
+                        ORDER BY 
+                        		 case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END DESC";
+			$q = $ci->db->query($q);
 			$result = $q->row_array();
 			
 			$data['rows'] = $result;
 			$data['success'] = true;
 			$data['message'] = 'data suceeded';
-
 		}
 		catch (Exception $e) {
-            $table->db->trans_rollback(); //Rollback Trans
+			$table->db->trans_rollback(); //Rollback Trans
             $data['message'] = $e->getMessage();
             $data['rows'] = array();
-        }
-		
+		}
 		echo json_encode($data);
 		exit;
 	}
-
+	
+	public function pelaporan_bulan(){
+		$data = array('rows' => array(), 'success' => false, 'message' => '');
+		try{
+			$result = "";
+			$ci = & get_instance();
+			$ci->load->model('transaksi/transaksi_harian');
+			$table= $ci->transaksi_harian;
+		
+			// print_r($arr_npwd);exit;
+			$q 	= " SELECT *,to_char(start_date,'dd-mm-yyyy') as start_date_string,to_char(end_date,'dd-mm-yyyy') as end_date_string";
+			$q .= " FROM view_finance_period_bayar finance";
+			$q = $ci->db->query($q);
+			$result = $q->result_array();
+			
+			$data['rows'] = $result;
+			$data['success'] = true;
+			$data['message'] = 'data suceeded';
+		}
+		catch (Exception $e) {
+			$table->db->trans_rollback(); //Rollback Trans
+            $data['message'] = $e->getMessage();
+            $data['rows'] = array();
+		}
+		echo json_encode($data);
+		exit;	
+	}
 }
-
-/* End of file Warehouse_controller.php */

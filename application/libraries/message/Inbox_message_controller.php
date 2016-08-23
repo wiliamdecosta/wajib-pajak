@@ -1,23 +1,26 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 /**
 * Json library
-* @class Users_controller
+* @class Warehouse_controller
 * @version 07/05/2015 12:18:00
 */
 class Inbox_message_controller {
 
     function read() {
 
-        $user_name = getVarClean('user_name','str',32);        
+        $page = getVarClean('page','int',1);
+        $limit = getVarClean('rows','int',5);
+        $sidx = getVarClean('sidx','str','creation_time');
+        $sord = getVarClean('sord','str','desc');
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
-
+		
+		$t_cust_account_id = 2;
         try {
 
             $ci = & get_instance();
             $ci->load->model('message/inbox_message');
-            $table= $ci->inbox_message;
-			// $table = $tables->transaction_query;
+			$table = $ci->inbox_message;
 
             $req_param = array(
                 "sort_by" => $sidx,
@@ -67,28 +70,25 @@ class Inbox_message_controller {
 
         return $data;
     }
+
     function crud() {
 
         $data = array();
         $oper = getVarClean('oper', 'str', '');
         switch ($oper) {
-            case 'add' :
-                // permission_check('add-user');
+            case 'add' :               
                 $data = $this->create();
             break;
 
-            case 'edit' :
-                // permission_check('edit-user');
+            case 'edit' :                
                 $data = $this->update();
             break;
 
-            case 'del' :
-                // permission_check('delete-user');
+            case 'del' :                
                 $data = $this->destroy();
             break;
 
-            default:
-                // permission_check('view-user');
+            default :                
                 $data = $this->read();
             break;
         }
@@ -98,10 +98,10 @@ class Inbox_message_controller {
 
 
     function create() {
-		$user_name = getVarClean('user_name','str',32);
+
         $ci = & get_instance();
         $ci->load->model('message/inbox_message');
-        $table = $ci->users;
+        $table = $ci->history_transaksi;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -172,7 +172,7 @@ class Inbox_message_controller {
 
         $ci = & get_instance();
         $ci->load->model('message/inbox_message');
-        $table = $ci->users;
+        $table = $ci->history_transaksi;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -243,7 +243,7 @@ class Inbox_message_controller {
     function destroy() {
         $ci = & get_instance();
         $ci->load->model('message/inbox_message');
-        $table = $ci->users;
+        $table = $ci->history_transaksi;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 
@@ -266,7 +266,7 @@ class Inbox_message_controller {
                 $items = (int) $items;
                 if (empty($items)){
                     throw new Exception('Empty parameter');
-                }
+                };
 
                 $table->remove($items);
                 $data['rows'][] = array($table->pkey => $items);
@@ -286,4 +286,7 @@ class Inbox_message_controller {
         }
         return $data;
     }
+
 }
+
+/* End of file Warehouse_controller.php */

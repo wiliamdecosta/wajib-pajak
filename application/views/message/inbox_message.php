@@ -51,13 +51,13 @@
         var pager_selector = "#grid-pager";
 
         jQuery("#grid-table").jqGrid({
-            url: '<?php echo WS_JQGRID."history.history_transaksi_controller/read"; ?>',
+            url: '<?php echo WS_JQGRID."message.inbox_message_controller/read"; ?>',
             datatype: "json",
             mtype: "POST",            
             colModel: [             
-                {label: 'Jenis Pesan', name: 'kuitansi_pembayaran', hidden: false, editable: true},                
-                {label: 'Terkirim', name: 'total_hrs_bayar', hidden: false, editable: true},              
-                {label: 'Status', name: 'lunas', hidden: false, editable: true}                
+                {label: 'Jenis Pesan', name: 'message_type', hidden: false, editable: true},                
+                {label: 'Terkirim', name: 'update_date', hidden: false, editable: true},              
+                {label: 'Status', name: 'message_status', hidden: false, editable: true}                
 			],
             height: '100%',
             autowidth: true,
@@ -67,9 +67,9 @@
             rownumbers: true, // show row numbers
             rownumWidth: 35, // the width of the row numbers columns
             altRows: true,
-            shrinkToFit: false,
+            shrinkToFit: true,
             multiboxonly: true,
-			width:"100%",
+			// width:"100%",
             onSelectRow: function (rowid) {
                 
             },

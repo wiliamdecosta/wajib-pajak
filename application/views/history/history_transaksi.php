@@ -15,37 +15,27 @@
 <div class="space-4"></div>
 
 <div class="row">
-	<div class="form-group">
-		<label class="control-label col-md-1">Search</label>
-		<div class="col-md-2">
-			<select id="tpref" class="form-control">
-				<option value="1">Customer Reference</option>
-				<option value="2">Account Number</option>
-				<option value="3">Account Name</option>
-				<option value="4">Telephone Number</option>
-			</select>									
-		</div>		
-		<div class="col-md-6" style="padding-left: 0px;">
-			<a id="SPTPD" class="btn blue"> Cetak SPTPD </a>
-			<a id="SSPD" class="btn blue"> Cetak SSPD </a>
-			<a id="RekapPenjualan" class="btn blue"> Rekap Penjualan </a>
-			<a id="CetakBayar" class="btn blue"><i class=""></i> Cetak Bayar </a>
-		</div>                             
+	<div class="portlet box blue-hoki">
+		<div class="portlet-title">
+			<div class="caption" id="labelnpwd">
+			</div>
+			<div class="actions">
+				<a id="SPTPD" class="btn default"><i class="fa fa-print"></i> Cetak SPTPD </a>
+				<a id="SSPD" class="btn default"><i class="fa fa-print"></i> Cetak SSPD </a>
+				<a id="RekapPenjualan" class="btn default"><i class="fa fa-print"></i> Rekap Penjualan </a>
+				<a id="CetakBayar" class="btn default"><i class="fa fa-print"></i> Cetak Bayar </a>
+			</div>
+		</div>
+		<div class="portlet-body">
+			<div class="tab-pane active">
+				<table id="grid-table"></table>
+				<div id="grid-pager"></div>
+			</div>
+		</div>
 	</div>
 </div>
 
-<div class="space-4"></div>
-
-<div class="row">
-	<div class="tab-content col-md-12">
-		<div class="tab-pane active">
-			<table id="grid-table"></table>
-			<div id="grid-pager"></div>
-		</div>
-	</div>	
-</div>
-
-<script>
+<script>	
 	jQuery(function($) {
         var grid_selector = "#grid-table";
         var pager_selector = "#grid-pager";
@@ -55,6 +45,7 @@
             datatype: "json",
             mtype: "POST",            
             colModel: [
+                {label: 'T_VAT', name: 't_vat_setllement_id', hidden: true},               
                 {label: 'Jenis', name: 'type_code', hidden: false},               
                 {label: 'Periode', name: 'periode_pelaporan', hidden: false, editable: true},
                 {label: 'Tgl Lapor', name: 'tgl_pelaporan', hidden: false, editable: true},
@@ -69,18 +60,27 @@
                 {label: 'Keterangan', name: 'lunas', hidden: false, editable: true}                
 			],
             height: '100%',
+			width:'100%',
             autowidth: true,
             viewrecords: true,
             rowNum: 10,
             rowList: [10,20,50],
             rownumbers: true, // show row numbers
-            rownumWidth: 35, // the width of the row numbers columns
+            // rownumWidth: 35, // the width of the row numbers columns
             altRows: true,
             shrinkToFit: false,
             multiboxonly: true,
-			width:"100%",
-            onSelectRow: function (rowid) {
-                
+			// width:'100%',
+            onSelectRow: function (rowid) {				
+				vat_value = $('#grid-table').jqGrid('getCell', rowid, 't_vat_setllement_id');
+                var hrefsptpd = $('#SPTPD').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_hotel_pdf.php?t_vat_setllement_id='+vat_value);
+				// window.location.href = hrefsptpd;
+				var hrefSSPD = $('#SSPD').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_restoran_pdf.php?t_vat_setllement_id='+vat_value);
+				// window.location.href = hrefSSPD;
+				var hrefRekapPenjualan = $('#RekapPenjualan').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_hiburan_pdf.php?t_vat_setllement_id='+vat_value);
+				// window.location.href = RekapPenjualan;
+				var hrefCetakBayar = $('#CetakBayar').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_parkir_pdf.php?t_vat_setllement_id=');
+				// window.location.href = hrefCetakBayar;
             },
             sortorder:'',
             pager: '#grid-pager',
@@ -97,34 +97,9 @@
             },
             //memanggil controller jqgrid yang ada di controller crud
             editurl: '',
-            caption: "Customer Details"
+            caption: "Tax Details"
 
         });
-		// jQuery("#grid-table").jqGrid('setGroupHeaders', {
-          // useColSpanStyle: true, 
-          // groupHeaders:[
-            // {startColumnName: 'id', numberOfColumns: 1, titleText: '.'},
-            // {startColumnName: 'date', numberOfColumns: 8, titleText: 'Nice'},
-            // ]   
-        // });
-        // jQuery("#grid-table").jqGrid('setGroupHeaders', {
-          // useColSpanStyle: true, 
-          // groupHeaders:[
-            // {startColumnName: 'id', numberOfColumns: 1, titleText: '.'},
-            // {startColumnName: 'date', numberOfColumns: 4, titleText: 'rice'},
-            // {startColumnName: 'total', numberOfColumns: 2, titleText: 'dice'}
-            // ]   
-        // });
-
-        // jQuery("#grid-table").jqGrid('setGroupHeaders', {
-          // useColSpanStyle: true, 
-          // groupHeaders:[
-            // {startColumnName: 'id', numberOfColumns: 1, titleText: '.'},
-            // {startColumnName: 'date', numberOfColumns: 2, titleText: 'Price'},
-            // {startColumnName: 'amount', numberOfColumns: 2, titleText: 'Shiping'},
-            // {startColumnName: 'total', numberOfColumns: 2, titleText: 'bipping'}
-            // ]   
-        // });
         jQuery('#grid-table').jqGrid('navGrid', '#grid-pager',
             {   //navbar options
                 edit: false,
@@ -314,4 +289,19 @@
         $(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
 
     }
+</script>
+<script>
+$(document).ready(function(){	
+		$.ajax({
+            // async: false,
+			url: "<?php echo WS_JQGRID ?>history.history_transaksi_controller/getnpwd",
+			datatype: "json",            
+            type: "POST",
+            success: function (response) {
+				var data = $.parseJSON(response);
+				var npwd_value = data.rows.npwd;
+				$('#labelnpwd').html(data.rows.npwd);				
+			}
+        });
+	});	
 </script>

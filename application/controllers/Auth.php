@@ -48,11 +48,19 @@ class Auth extends CI_Controller {
             redirect(base_url().'auth');
         }
 
+		$sql = "select * from sikp.f_get_npwd_by_username('".$row['user_name']."')";
+		
+        $query = $this->db->query($sql);
+        $row2 = $query->row_array();
+		
         $userdata = array(
                         'user_id'           => $row['user_id'],
                         'user_name'         => $row['user_name'],
                         'user_email'        => $row['user_email'],
                         'user_realname'     => $row['user_realname'],
+                        'cust_account_id'  	=> $row2['t_cust_account_id'],
+                        'npwd'     			=> $row2['npwd'],
+                        'company_name'     => $row2['company_name'],
                         'logged_in'         => true,
                       );
 
@@ -68,6 +76,9 @@ class Auth extends CI_Controller {
                         'user_name'         => '',
                         'user_email'        => '',
                         'user_realname'     => '',
+                        'cust_account_id'   => '',
+                        'npwd'     			=> '',
+                        'company_name'     	=> '',
                         'logged_in'         => false,
                       );
 
