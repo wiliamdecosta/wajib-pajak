@@ -11,31 +11,32 @@
     </ul>
 </div>
 <!-- end breadcrumb -->
-	
+
 <div class="space-4"></div>
 
 <div class="row">
 	<div class="portlet box blue-hoki">
 		<div class="portlet-title">
-			<div class="caption" id="labelnpwd">
-			</div>
+			<div class="caption" id="labelnpwd"><?php echo $this->session->userdata('npwd');?></div>
 			<div class="actions">
-				<a id="SPTPD" class="btn default"><i class="fa fa-print"></i> Cetak SPTPD </a>
-				<a id="SSPD" class="btn default"><i class="fa fa-print"></i> Cetak SSPD </a>
-				<a id="RekapPenjualan" class="btn default"><i class="fa fa-print"></i> Rekap Penjualan </a>
-				<a id="CetakBayar" class="btn default"><i class="fa fa-print"></i> Cetak Bayar </a>
+				<a id="btn-SPTPD" href="#" class="btn default"><i class="fa fa-print"></i> Cetak SPTPD </a>
+				<a id="btn-SSPD" href="#" class="btn default"><i class="fa fa-print"></i> Cetak SSPD </a>
+				<a id="btn-RekapPenjualan" href="#" class="btn default"><i class="fa fa-print"></i> Rekap Penjualan </a>
+				<a id="btn-CetakBayar" href="#" class="btn default"><i class="fa fa-print"></i> Cetak Bayar </a>
 			</div>
 		</div>
 		<div class="portlet-body">
-			<div class="tab-pane active">
-				<table id="grid-table"></table>
-				<div id="grid-pager"></div>
-			</div>
-		</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="grid-table"></table>
+                    <div id="grid-pager"></div>
+                </div>
+            </div>
+        </div>
 	</div>
 </div>
 
-<script>	
+<script>
 	jQuery(function($) {
         var grid_selector = "#grid-table";
         var pager_selector = "#grid-pager";
@@ -43,25 +44,32 @@
         jQuery("#grid-table").jqGrid({
             url: '<?php echo WS_JQGRID."history.history_transaksi_controller/read"; ?>',
             datatype: "json",
-            mtype: "POST",            
+            mtype: "POST",
             colModel: [
-                {label: 'T_VAT', name: 't_vat_setllement_id', hidden: true},               
-                {label: 'Jenis', name: 'type_code', hidden: false},               
+                {label: 'ID', name: 't_vat_setllement_id', key: true, hidden: true},
+                {label: 'p_vat_type_id', name: 'p_vat_type_id', hidden: true},
+                {label: 'p_vat_type_dtl_id', name: 'p_vat_type_dtl_id', hidden: true},
+                {label: 't_customer_order_id', name: 't_customer_order_id', hidden: true},
+                {label: 't_cust_account_id', name: 't_cust_account_id', hidden: true},
+                {label: 'start_period', name: 'start_period', hidden: true},
+                {label: 'end_period', name: 'end_period', hidden: true},
+
+                {label: 'Jenis', name: 'type_code', hidden: false},
                 {label: 'Periode', name: 'periode_pelaporan', hidden: false, editable: true},
-                {label: 'Tgl Lapor', name: 'tgl_pelaporan', hidden: false, editable: true},
-                {label: 'Total Transaksi', name: 'total_transaksi', hidden: false, editable: true},
-                {label: 'Pajak Terutang', name: 'total_pajak', hidden: false, editable: true},
+                {label: 'Tgl Lapor', name: 'tgl_pelaporan', align:'center', hidden: false, editable: true},
+                {label: 'Total Transaksi', name: 'total_transaksi', align:'right', hidden: false, editable: true},
+                {label: 'Pajak Terutang', name: 'total_pajak', align:'right', hidden: false, editable: true},
                 {label: 'No Bayar', name: 'payment_key', hidden: false, editable: true},
-                {label: 'Sanksi Adm 25%', name: 'kenaikan', hidden: false, editable: true},
-                {label: 'Sanksi Adm 2%', name: 'kenaikan1', hidden: false, editable: true},
-                {label: 'Denda', name: 'total_denda', hidden: false, editable: true},                
-                {label: 'No. Kuitansi', name: 'kuitansi_pembayaran', hidden: false, editable: true},                
-                {label: 'Jumlah Bayar', name: 'total_hrs_bayar', hidden: false, editable: true},              
-                {label: 'Keterangan', name: 'lunas', hidden: false, editable: true}                
+                {label: 'Sanksi Adm 25%', name: 'kenaikan', align:'right', hidden: false, editable: true},
+                {label: 'Sanksi Adm 2%', name: 'kenaikan1', align:'right', hidden: false, editable: true},
+                {label: 'Denda', name: 'total_denda', align:'right', hidden: false, editable: true},
+                {label: 'No. Kuitansi', name: 'kuitansi_pembayaran', width:450, hidden: false, editable: true},
+                {label: 'Jumlah Bayar', name: 'total_hrs_bayar', align:'right', hidden: false, editable: true},
+                {label: 'Keterangan', name: 'lunas', hidden: false, editable: true}
 			],
             height: '100%',
 			width:'100%',
-            autowidth: true,
+            autowidth: false,
             viewrecords: true,
             rowNum: 10,
             rowList: [10,20,50],
@@ -71,16 +79,8 @@
             shrinkToFit: false,
             multiboxonly: true,
 			// width:'100%',
-            onSelectRow: function (rowid) {				
-				vat_value = $('#grid-table').jqGrid('getCell', rowid, 't_vat_setllement_id');
-                var hrefsptpd = $('#SPTPD').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_hotel_pdf.php?t_vat_setllement_id='+vat_value);
-				// window.location.href = hrefsptpd;
-				var hrefSSPD = $('#SSPD').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_restoran_pdf.php?t_vat_setllement_id='+vat_value);
-				// window.location.href = hrefSSPD;
-				var hrefRekapPenjualan = $('#RekapPenjualan').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_hiburan_pdf.php?t_vat_setllement_id='+vat_value);
-				// window.location.href = RekapPenjualan;
-				var hrefCetakBayar = $('#CetakBayar').attr('href','http://202.154.24.3:81/mpd/report/cetak_sptpd_parkir_pdf.php?t_vat_setllement_id=');
-				// window.location.href = hrefCetakBayar;
+            onSelectRow: function (rowid) {
+
             },
             sortorder:'',
             pager: '#grid-pager',
@@ -105,7 +105,7 @@
                 edit: false,
 				excel: true,
                 editicon: 'fa fa-pencil blue bigger-120',
-                add: false,				
+                add: false,
                 addicon: 'fa fa-plus-circle purple bigger-120',
                 del: false,
                 delicon: 'fa fa-trash-o red bigger-120',
@@ -229,8 +229,8 @@
                 }
             }
         )
-    });	
-			
+    });
+
 	function serializeJSON(postdata) {
         var items;
         if(postdata.oper != 'del') {
@@ -285,23 +285,120 @@
     function responsive_jqgrid(grid_selector, pager_selector) {
 
         var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(grid_selector).jqGrid( 'setGridWidth', $(".form-body").width() );
+        $(grid_selector).jqGrid( 'setGridWidth', $(".portlet-body").width() );
         $(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
 
     }
 </script>
+
 <script>
-$(document).ready(function(){	
-		$.ajax({
-            // async: false,
-			url: "<?php echo WS_JQGRID ?>history.history_transaksi_controller/getnpwd",
-			datatype: "json",            
-            type: "POST",
-            success: function (response) {
-				var data = $.parseJSON(response);
-				var npwd_value = data.rows.npwd;
-				$('#labelnpwd').html(data.rows.npwd);				
-			}
-        });
-	});	
+    /**
+     * Cetak SPTPD
+     * @param  {[type]} e){var rowId [description]
+     * @return {[type]}      [description]
+     */
+    $('#btn-SPTPD').on('click',function(e){
+        var rowId =$("#grid-table").jqGrid('getGridParam','selrow');
+        if(rowId == null) {
+            swal('Informasi','Pilih salah satu baris data','info');
+            return;
+        }
+        var rowData = $("#grid-table").getRowData(rowId);
+        var reqId = rowData['p_vat_type_id'];
+        var pid = rowData['t_vat_setllement_id'];
+        var urlref;
+
+        if(rowData['kuitansi_pembayaran'] == "") {
+            if (reqId == '1'){
+                    urlref="http://45.118.112.231/mpd/report/cetak_sptpd_hotel_pdf.php?t_vat_setllement_id="+pid;
+                    window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+            }else if(reqId == '2'){
+                    urlref="http://45.118.112.231/mpd/report/cetak_sptpd_restoran_pdf.php?t_vat_setllement_id="+pid;
+                    window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+            }else if(reqId == 3){
+                    lurlref="http://45.118.112.231/mpd/report/cetak_sptpd_hiburan_pdf.php?t_vat_setllement_id="+pid;
+                    window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+            }else if(reqId == 4){
+                    urlref="http://45.118.112.231/mpd/report/cetak_sptpd_parkir_pdf.php?t_vat_setllement_id="+pid;
+                    window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+            }else if(reqId == 5){
+                    urlref="http://45.118.112.231/mpd/report/cetak_sptpd_ppj_pdf.php?t_vat_setllement_id="+pid;
+                    window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+            }else{
+                    swal('Informasi','Jenis Permohonan Tidak Diketahui','info');
+            }
+        }else {
+            swal('Informasi','Maaf, Cetak SPTPD tidak dapat dilakukan karena record yang dipilih belum dibayar','info');
+        }
+
+    });
+
+    /**
+     * Cetak SSPD
+     * @param  {[type]} e){                     var rowId [description]
+     * @return {[type]}      [description]
+     */
+    $('#btn-SSPD').on('click',function(e){
+        var rowId =$("#grid-table").jqGrid('getGridParam','selrow');
+        if(rowId == null) {
+            swal('Informasi','Pilih salah satu baris data','info');
+            return;
+        }
+        var rowData = $("#grid-table").getRowData(rowId);
+
+        if(rowData['kuitansi_pembayaran'] == "") {
+            var t_customer_order_id = rowData['t_customer_order_id'];
+            var urlref = "http://45.118.112.231/mpd/report/cetak_formulir_sspd_pdf.php?t_customer_order_id="+t_customer_order_id;
+            window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+        }else {
+            swal('Informasi','Maaf, Cetak SSPD tidak dapat dilakukan karena record yang dipilih belum dibayar','info');
+        }
+
+    });
+
+    /**
+     * Cetak Rekap Penjualan
+     * @param  {[type]} e){                     var rowId [description]
+     * @return {[type]}      [description]
+     */
+    $('#btn-RekapPenjualan').on('click',function(e){
+        var rowId =$("#grid-table").jqGrid('getGridParam','selrow');
+        if(rowId == null) {
+            swal('Informasi','Pilih salah satu baris data','info');
+            return;
+        }
+        var rowData = $("#grid-table").getRowData(rowId);
+        var reqId = rowData['p_vat_type_dtl_id'];
+
+        var start_date = rowData['start_period'];
+        var end_date = rowData['end_period'];
+        var t_cust_account_id = rowData['t_cust_account_id'];
+
+        urlref = "<?php echo base_url();?>transaksi_harian/print_transaksi_harian?";
+        urlref +="date_end="+end_date+"&date_start="+start_date+"&p_vat_type_dtl_id="+reqId+"&t_cust_account_id="+t_cust_account_id;
+        window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+    });
+
+    /**
+     * Cetak Bayar
+     * @param  {[type]} e){                     var rowId [description]
+     * @return {[type]}      [description]
+     */
+    $('#btn-CetakBayar').on('click',function(e){
+        var rowId =$("#grid-table").jqGrid('getGridParam','selrow');
+        if(rowId == null) {
+            swal('Informasi','Pilih salah satu baris data','info');
+            return;
+        }
+        var rowData = $("#grid-table").getRowData(rowId);
+        var no_bayar = rowData['payment_key'];
+
+        if(no_bayar != "") {
+            var urlref = "http://45.118.112.231/mpd/report/cetak_no_bayar.php?no_bayar="+no_bayar;
+            window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
+        }else {
+            swal('Informasi','Laporan Anda masih dalam proses verifikasi.','info');
+        }
+
+    });
 </script>
