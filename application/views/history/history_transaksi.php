@@ -65,7 +65,7 @@
                 {label: 'Denda', name: 'total_denda', align:'right', hidden: false, editable: true},
                 {label: 'No. Kuitansi', name: 'kuitansi_pembayaran', width:450, hidden: false, editable: true},
                 {label: 'Jumlah Bayar', name: 'total_hrs_bayar', align:'right', hidden: false, editable: true},
-                {label: 'Keterangan', name: 'lunas', hidden: false, editable: true}
+                {label: 'Keterangan', name: 'lunas', align:'center', hidden: false, editable: true}
 			],
             height: '100%',
 			width:'100%',
@@ -308,7 +308,7 @@
         var pid = rowData['t_vat_setllement_id'];
         var urlref;
 
-        if(rowData['kuitansi_pembayaran'] == "") {
+        if(rowData['kuitansi_pembayaran'] != "") {
             if (reqId == '1'){
                     urlref="http://45.118.112.231/mpd/report/cetak_sptpd_hotel_pdf.php?t_vat_setllement_id="+pid;
                     window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
@@ -346,7 +346,7 @@
         }
         var rowData = $("#grid-table").getRowData(rowId);
 
-        if(rowData['kuitansi_pembayaran'] == "") {
+        if(rowData['kuitansi_pembayaran'] != "") {
             var t_customer_order_id = rowData['t_customer_order_id'];
             var urlref = "http://45.118.112.231/mpd/report/cetak_formulir_sspd_pdf.php?t_customer_order_id="+t_customer_order_id;
             window.open(urlref, "_blank", "toolbar=0,location=0,menubar=0");
