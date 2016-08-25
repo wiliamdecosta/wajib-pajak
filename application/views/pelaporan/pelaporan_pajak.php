@@ -45,7 +45,7 @@
 	</div>
 </div>
 
-<?php $this->load->view('pelaporan/lov_add_laporan.php'); ?>
+<?php  $this->load->view('pelaporan/lov_add_laporan.php'); ?>
 
 <script>
 	
@@ -238,7 +238,7 @@
         var pager_selector = "#grid-pager-detail";
 
         jQuery("#grid-table-detail").jqGrid({
-            url: '<?php echo WS_JQGRID."customer.search_customer_controller/viewFastel"; ?>',
+            // url: '<?php echo WS_JQGRID."customer.search_customer_controller/viewFastel"; ?>',
             datatype: "json",
             mtype: "POST",
             postData: {
@@ -488,7 +488,7 @@ $(document).ready(function(){
             success: function (response) {
 				var data = $.parseJSON(response);
 				
-				// $('#labelnpwd').html(data.rows.npwd);
+				$('#labelnpwd').html(data.rows.npwd);
 			}
         });
 	});

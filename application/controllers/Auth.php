@@ -61,6 +61,7 @@ class Auth extends CI_Controller {
                         'cust_account_id'  	=> $row2['t_cust_account_id'],
                         'npwd'     			=> $row2['npwd'],
                         'company_name'     => $row2['company_name'],
+                        'vat_type_dtl'     => $row2['p_vat_type_dtl_id'],
                         'logged_in'         => true,
                       );
 

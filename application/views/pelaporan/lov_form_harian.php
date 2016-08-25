@@ -2,7 +2,7 @@
 <style>
 .top-buffer { margin-top:7px; }
 </style>
-<div id="modal_lov_form_harian" class="modal fade" tabindex="-1" style="overflow-y: scroll;">
+<div id="modal_lov_form_harian" class="modal fade" tabindex="-1">
     <div class="modal-dialog" style="width:960px;">
         <div class="modal-content">
             <!-- modal title -->
@@ -13,9 +13,10 @@
             </div>
             <input type="hidden" id="modal_lov_form_harian_id_val" value="" />
             <input type="hidden" id="modal_lov_form_harian_code_val" value="" />
+            <input type="hidden" id="modal_lov_vat_pct_val" value="" />
 
             <!-- modal body -->
-            <div class="modal-body">
+            <div class="modal-body" style="height:500px; overflow-y:scroll;">
 			
 				<div class="tab-pane active">
 					<table id="grid-table-laporan"></table>
@@ -27,10 +28,14 @@
             <div class="modal-footer no-margin-top">
                 <div class="bootstrap-dialog-footer">
                     <div class="bootstrap-dialog-footer-buttons">
-                        <button class="btn btn-danger btn-xs radius-4" data-dismiss="modal">
+                        <button class="btn btn-default btn-xs radius-4" id="simpan" data-dismiss="modal">
+                            <i class="ace-icon fa fa-floppy"></i>
+                            Simpan
+                        </button>
+						<button class="btn btn-danger btn-xs radius-4" data-dismiss="modal">
                             <i class="ace-icon fa fa-times"></i>
                             Close
-                        </button>
+                        </button>						
                     </div>
                 </div>
             </div>
@@ -39,7 +44,83 @@
 </div><!-- /.end modal -->
 
 <script>
-modal_lov_form_harian
+	$('#simpan').click(function(){
+		var $grid = $('#grid-table-laporan');
+		var colSum = $grid.jqGrid('getCol', 'jum_penjualan', false, 'sum');
+		alert(colSum);
+		$('#omzet_value').html(omzet_value);
+		$('#omzet_value').val(colSum);
+		
+		$.ajax({
+            async: false,
+			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl_cls",
+			datatype: "json",            
+            type: "POST",
+            success: function (response) {
+					var data = $.parseJSON(response);
+					var i = 0;
+					if (data.rows.length > 0){
+						while(i<=data.rows.length){
+							$('#rincian').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +'>'+ data.rows[0].vat_code +'</option>');
+						i++;	
+						}
+					} else{
+						$('#rincian_form').hide(100);
+						$.ajax({
+							url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl",
+							datatype: "json",            
+							type: "POST",
+							success: function (response) {
+								var data = $.parseJSON(response);
+								$('#val_pajak').val( (data.rows[0].vat_pct * parseInt($('#omzet_value').val())) / 100 );
+							}
+						});			
+					}
+			}
+		});
+		// Hitung Denda
+		i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
+		while (i < $("#grid-table-laporan").getRowData().length){
+			rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
+			if(rowId == -1){
+				$('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
+				break;
+			}	 			
+		i++;
+		}			
+		alert("val denda" + $('#val_denda').val());
+		$('#totalBayar').val( parseInt($('#val_pajak').val()) + parseInt($('#val_denda').val()) );
+		i=0;
+			
+		while (i < $("#grid-table-laporan").getRowData().length){
+			Tanggal = $('#grid-table-laporan').jqGrid('getCell',i,'Tanggal');
+			No_UrutAwal = $('#grid-table-laporan').jqGrid('getCell',i,'No_UrutAwal');
+			No_UrutAkhir = $('#grid-table-laporan').jqGrid('getCell',i,'No_UrutAkhir');
+			jum_faktur = $('#grid-table-laporan').jqGrid('getCell',i,'jum_faktur');
+			jum_penjualan = $('#grid-table-laporan').jqGrid('getCell',i,'jum_penjualan');
+			descript = $('#grid-table-laporan').jqGrid('getCell',i,'descript');
+			if((No_UrutAwal.length >0) || (No_UrutAkhir.length >0) || (jum_faktur !=0) || (jum_penjualan !=0) || (descript.length >0)){
+				items[i] = {trans_date:''};
+				items[i] = {bill_no:''};
+				items[i] = {bill_no_end:''};
+				items[i] = {bill_count:''};
+				items[i] = {service_desc:''};
+				items[i] = {service_charge:''};
+				items[i] = {descript:''};
+				
+				mydata[i].trans_date = Tanggal;
+				mydata[i].bill_no = No_UrutAwal;
+				mydata[i].bill_no_end = No_UrutAkhir;
+				mydata[i].bill_count = jum_faktur;
+				mydata[i].service_desc = null;
+				mydata[i].service_charge = jum_penjualan;
+				mydata[i].descript = description;
+			
+			}
+		i++;
+		};
+	});
+
     jQuery(function($) {
         $("#modal_lov_form_harian_btn_blank").on('click', function() {
             $("#"+ $("#modal_lov_form_harian_id_val").val()).val("");
@@ -52,33 +133,37 @@ modal_lov_form_harian
         modal_lov_form_harian_set_field_value(the_id_field, the_code_field);
         $("#modal_lov_form_harian").modal({backdrop: 'static'});
 		i = 0;
-		mydata = new Array();
-		mydata["Tanggal", "No. Urut Faktur Awal'", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"] = new Array();
-		while(i < diffDays){
-			dateM1 = moment(the_id_field).add(i,'days');   
-			mydata['Tanggal'][i] = dateM1;
+		mydata = [];
+		var date_denda_signed;
+		$.ajax({							
+			async: false,
+			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/get_fined_start",
+			datatype: "json",            
+			type: "POST",
+			data: {nowdate:moment($('#datepicker').val()).format("MM-YYYY")},
+			success: function (response) {
+				var data = $.parseJSON(response);
+				date_denda_signed = data.rows[0].due_in_day;
+			}
+		});	
+		while(i < diffDays+1){
+			dateM1 = moment(the_id_field).add(i,'days');
+			dateFormatted = moment(dateM1).format('DD-MM-YYYY');
+			mydata[i] = {Tanggal:''};
+			mydata[i] = {keyid:''};
+			mydata[i] = {jum_faktur:''};
+			mydata[i] = {jum_penjualan:''};
+			mydata[i].Tanggal = dateFormatted;
+			// alert(dateFormatted +' __ '+ date_denda_signed +'-'+moment(dateM1).format('MM-YYYY'))
+			if( dateFormatted == date_denda_signed +"-"+ moment(dateM1).format('MM-YYYY')){
+				mydata[i].keyid = -1;
+			} else{
+				mydata[i].keyid = i;
+			};
+				mydata[i].jum_faktur = 0;
+				mydata[i].jum_penjualan = 0;
 			i++;
-		}
-		alert(mydata['Tanggal']);
-		// xyz = moment(the_id_field).format('DD-MM-YYYY');
-		// mydata = [{
-			// Tanggal: xyz,
-			// No_UrutAwal: "Canada",
-			// No_UrutAkhir: "North America"
-		// }, {
-			// Tanggal: the_code_field,
-			// No_UrutAwal: "USA",
-			// No_UrutAkhir: "North America"
-		// }, {
-			// Tanggal: "Silicon Valley",
-			// No_UrutAwal: "USA",
-			// No_UrutAkhir: "North America"
-		// }, {
-			// Tanggal: "Paris",
-			// No_UrutAwal: "France",
-			// No_UrutAkhir: "Europe"
-		// }];
-		
+		}		
 			jQuery(function($) {
 			var grid_selector = "#grid-table-laporan";
 			var pager_selector = "#grid-pager-laporan";
@@ -89,36 +174,29 @@ modal_lov_form_harian
 				data: mydata,
 				datatype: "local",
 				// mtype: "POST",
-				colNames: ["Tanggal", "No. Urut Faktur Awal'", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"],			
+				colNames: ["keyid","Tanggal", "No. Urut Faktur Awal", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"],			
 				colModel: [
-					{label: 'Tanggal', name: 'Tanggal', hidden: false, cellEdit: true},              
-					{label: 'No. Urut Faktur Awal', name: 'No_UrutAwal', hidden: false, cellEdit: true},               
-					{label: 'No. Urut Faktur Akhir', name: 'No_UrutAkhir', hidden: false, editable: true},
-					{label: 'Jumlah Faktur', name: 'tgl_pelaporan', hidden: false, editable: true, cellEdit: true},
-					{label: 'Jumlah Penjualan', name: 'total_transaksi', hidden: false, editable: true, cellEdit: true},
-					{label: 'Deskripsi', name: 'total_pajak', hidden: false, editable: true, cellEdit: true}                
+					{label: 'keyid', name: 'keyid', hidden: false, cellEdit: false},					              
+					{label: 'Tanggal', name: 'Tanggal', hidden: false, cellEdit: false},              
+					{label: 'No. Urut Faktur Awal', name: 'No_UrutAwal', hidden: false, editable: true, cellEdit: true},               
+					{label: 'No. Urut Faktur Akhir', name: 'No_UrutAkhir', hidden: false, editable: true, cellEdit: true},
+					{label: 'Jumlah Faktur', name: 'jum_faktur', hidden: false, editable: true, cellEdit: true},
+					{label: 'Jumlah Penjualan', name: 'jum_penjualan', hidden: false, editable: true, cellEdit: true},
+					{label: 'Deskripsi', name: 'descript', hidden: false, editable: true, cellEdit: true}                
 				],
 				height: '100%',
-				width:'300px',
-				autowidth: true,
+				width:900,
+				autowidth: false,
 				viewrecords: true,
-				rowNum: 10,
-				rowList: [10,20,50],
+				rowNum: 100,
+				rowList: [100,200,500],
 				rownumbers: true, // show row numbers
-				// rownumWidth: 35, // the width of the row numbers columns
 				altRows: true,
 				shrinkToFit: false,
 				multiboxonly: true,
 				cellEdit : true,
-				cellsubmit : 'remote',
-				// width:'100%',
-				onSelectRow: function (rowid) {	
-					
-				},
-				ondblClickRow: function(rowid) {
-					// jQuery(this).jqGrid('editGridRow', rowid);			
-					alert($('#modal_lov_form_harian_id_val').val());
-					alert($('#modal_lov_form_harian_code_val').val());
+				cellsubmit : 'clientArray',
+				onSelectRow: function (rowid) {						
 				},
 				sortorder:'',
 				pager: '#grid-pager-laporan',
@@ -269,64 +347,7 @@ modal_lov_form_harian
 			)
 		});	
 				
-		function serializeJSON(postdata) {
-			var items;
-			if(postdata.oper != 'del') {
-				items = JSON.stringify(postdata, function(key,value){
-					if (typeof value === 'function') {
-						return value();
-					} else {
-					return value;
-					}
-				});
-			}else {
-				items = postdata.id;
-			}
-	
-			var jsondata = {items:items, oper:postdata.oper, '<?php echo $this->security->get_csrf_token_name(); ?>' : '<?php echo $this->security->get_csrf_hash(); ?>'};
-			return jsondata;
-		}
-	
-		function style_edit_form(form) {
-	
-			//update buttons classes
-			var buttons = form.next().find('.EditButton .fm-button');
-			buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
-			buttons.eq(0).addClass('btn-primary');
-			buttons.eq(1).addClass('btn-danger');
-	
-	
-		}
-	
-		function style_delete_form(form) {
-			var buttons = form.next().find('.EditButton .fm-button');
-			buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
-			buttons.eq(0).addClass('btn-danger');
-			buttons.eq(1).addClass('btn-default');
-		}
-	
-		function style_search_filters(form) {
-			form.find('.delete-rule').val('X');
-			form.find('.add-rule').addClass('btn btn-xs btn-primary');
-			form.find('.add-group').addClass('btn btn-xs btn-success');
-			form.find('.delete-group').addClass('btn btn-xs btn-danger');
-		}
-	
-		function style_search_form(form) {
-			var dialog = form.closest('.ui-jqdialog');
-			var buttons = dialog.find('.EditTable')
-			buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'fa fa-retweet');
-			buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'fa fa-comment-o');
-			buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-success').find('.ui-icon').attr('class', 'fa fa-search');
-		}
-	
-		function responsive_jqgrid(grid_selector, pager_selector) {
-	
-			var parent_column = $(grid_selector).closest('[class*="col-"]');
-			$(grid_selector).jqGrid( 'setGridWidth', $(".form-body").width() );
-			$(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
-	
-		}
+		
     
 	}
 
@@ -343,12 +364,64 @@ modal_lov_form_harian
 
          $("#"+ $("#modal_lov_form_harian_id_val").val()).change();
     }
-
-</script>
-
-<script>
-
-	var mydata = [];
-			
 	
+	function serializeJSON(postdata) {
+		var items;
+		if(postdata.oper != 'del') {
+			items = JSON.stringify(postdata, function(key,value){
+				if (typeof value === 'function') {
+					return value();
+				} else {
+				return value;
+				}
+			});
+		}else {
+			items = postdata.id;
+		}
+
+		var jsondata = {items:items, oper:postdata.oper, '<?php echo $this->security->get_csrf_token_name(); ?>' : '<?php echo $this->security->get_csrf_hash(); ?>'};
+		return jsondata;
+	}
+
+	function style_edit_form(form) {
+
+		//update buttons classes
+		var buttons = form.next().find('.EditButton .fm-button');
+		buttons.addClass('btn btn-sm').find('[class*="-icon"]').hide();//ui-icon, s-icon
+		buttons.eq(0).addClass('btn-primary');
+		buttons.eq(1).addClass('btn-danger');
+
+
+	}
+
+	function style_delete_form(form) {
+		var buttons = form.next().find('.EditButton .fm-button');
+		buttons.addClass('btn btn-sm btn-white btn-round').find('[class*="-icon"]').hide();//ui-icon, s-icon
+		buttons.eq(0).addClass('btn-danger');
+		buttons.eq(1).addClass('btn-default');
+	}
+
+	function style_search_filters(form) {
+		form.find('.delete-rule').val('X');
+		form.find('.add-rule').addClass('btn btn-xs btn-primary');
+		form.find('.add-group').addClass('btn btn-xs btn-success');
+		form.find('.delete-group').addClass('btn btn-xs btn-danger');
+	}
+
+	function style_search_form(form) {
+		var dialog = form.closest('.ui-jqdialog');
+		var buttons = dialog.find('.EditTable')
+		buttons.find('.EditButton a[id*="_reset"]').addClass('btn btn-sm btn-info').find('.ui-icon').attr('class', 'fa fa-retweet');
+		buttons.find('.EditButton a[id*="_query"]').addClass('btn btn-sm btn-inverse').find('.ui-icon').attr('class', 'fa fa-comment-o');
+		buttons.find('.EditButton a[id*="_search"]').addClass('btn btn-sm btn-success').find('.ui-icon').attr('class', 'fa fa-search');
+	}
+
+	function responsive_jqgrid(grid_selector, pager_selector) {
+
+		var parent_column = $(grid_selector).closest('[class*="col-"]');
+		$(grid_selector).jqGrid( 'setGridWidth', $(".modal-body").width() );
+		$(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
+
+	}
 </script>
+

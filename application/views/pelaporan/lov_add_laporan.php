@@ -13,6 +13,7 @@
             </div>
             <input type="hidden" id="modal_lov_add_laporan_id_val" value="" />
             <input type="hidden" id="modal_lov_add_laporan_code_val" value="" />
+            <input type="hidden" id="month_id" value="" />
 
             <!-- modal body -->
             <div class="modal-body">
@@ -27,11 +28,13 @@
 				</div>
                 <div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Klasifikasi:</label>
-					<input class="col-md-6">
+					<select id="klasifikasi" class="col-md-6">
+					</select>
 				</div>
-                <div class="row  top-buffer">
+                <div class="row  top-buffer" id="rincian_form">
 					<label class="col-md-3 col-md-offset-1">Rincian:</label>
-					<input class="col-md-6">
+					<select id="rincian" class="col-md-6">
+					</select>
 				</div>
                 <div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Masa Pajak:</label>
@@ -46,19 +49,19 @@
 				</div>
 				<div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Nilai Omzet:</label>
-					<input class="col-md-5" readonly="">
+					<input class="col-md-5" readonly="" id="omzet_value"  style="text-align:right;">
 				</div>
                 <div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Pajak yang Harus dibayar:</label>
-					<input class="col-md-5" readonly="">
+					<input class="col-md-5" readonly=""  id="val_pajak" style="text-align:right;">
 				</div>
                 <div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Denda:</label>
-					<input class="col-md-5" readonly="">
+					<input class="col-md-5" readonly="" id="val_denda" style="text-align:right;">
 				</div>
                 <div class="row  top-buffer">
 					<label class="col-md-3 col-md-offset-1">Total Bayar:</label>
-					<input class="col-md-5" readonly="">
+					<input class="col-md-5" readonly="" id="totalBayar" style="text-align:right;">
 				</div>
                 
             </div>
@@ -77,9 +80,42 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.end modal -->
 
-<?php $this->load->view('pelaporan/lov_form_harian.php'); ?>
+<?php  $this->load->view('pelaporan/lov_form_harian.php'); ?>
 
 <script>
+	$(document).ready(function(){
+		$.ajax({
+            //async: false,
+			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl",
+			datatype: "json",            
+            type: "POST",
+            success: function (response) {
+					var data = $.parseJSON(response);
+					$('#klasifikasi').append('<option selected value='+ data.rows[0].vat_code +'>'+ data.rows[0].vat_code +'</option>');
+					$('#vat_pct').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +' >'+ data.rows[0].vat_code +'</option>');
+				}
+        });
+	});
+	$(document).ready(function(){
+		$.ajax({
+            //async: false,
+			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl_cls",
+			datatype: "json",            
+            type: "POST",
+            success: function (response) {
+					var data1 = $.parseJSON(response);
+					i=0;
+					if (data1.rows.length >0){
+						while(i<=data1.rows.length){
+							$('#rincian').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +'>'+ data.rows[0].vat_code +'</option>');
+						i++;	
+						}
+					} else{
+						$('#rincian_form').hide(100);
+					}					
+			}
+        });
+	});	
     jQuery(function($) {
         $("#modal_lov_add_laporan_btn_blank").on('click', function() {
             $("#"+ $("#modal_lov_add_laporan_id_val").val()).val("");
@@ -91,7 +127,6 @@
     function modal_lov_add_laporan_show(the_id_field, the_code_field, customer_ref) {
         modal_lov_add_laporan_set_field_value(the_id_field, the_code_field);
         $("#modal_lov_add_laporan").modal({backdrop: 'static'});
-        modal_lov_add_laporan_prepare_table(customer_ref);
     }
 
 
@@ -108,47 +143,7 @@
          $("#"+ $("#modal_lov_add_laporan_id_val").val()).change();
     }
 
-    function modal_lov_add_laporan_prepare_table(customer_ref) {
-        $("#modal_lov_add_laporan_grid_selection").bootgrid("destroy");
-        $("#modal_lov_add_laporan_grid_selection").bootgrid({
-             formatters: {
-                "opt-edit" : function(col, row) {
-                    return '<a href="javascript:;" title="Set Value" onclick="modal_lov_add_laporan_set_value(\''+ row.account_num +'\', \''+ row.account_name +'\')" class="blue"><i class="fa fa-pencil-square-o bigger-130"></i></a>';
-                }
-             },
-             rowCount:[5,10],
-             ajax: true,
-             requestHandler:function(request) {
-                if(request.sort) {
-                    var sortby = Object.keys(request.sort)[0];
-                    request.dir = request.sort[sortby];
-
-                    delete request.sort;
-                    request.sort = sortby;
-                }
-                return request;
-             },
-             responseHandler:function (response) {
-                if(response.success == false) {
-                    swal({title: 'Attention', text: response.message, html: true, type: "warning"});
-                }
-                return response;
-             },
-             url: '<?php echo WS_URL."account.account_controller/readLov"; ?>',
-             post: function(){
-                return {
-                    customer_ref:customer_ref
-                };
-             },
-             selection: true,
-             sorting:true
-        });
-
-        $('.bootgrid-header span.glyphicon-search').removeClass('glyphicon-search')
-        .html('<i class="fa fa-search"></i>');
-    }
-	
-	$('#months').click(function(){
+    $('#months').click(function(){
 		$.ajax({
             // async: false,
 			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/pelaporan_bulan",
@@ -159,12 +154,24 @@
 				i = 0;
 				while(i < data.rows.length){
 				var months = data.rows[i].code;
-				$('#months').append('<option value='+ months +' >' + months + '</option>');				
+				var start_date = data.rows[i].start_date_string;
+				var end_date = data.rows[i].end_date_string;
+				$('#months').append('<option value="'+ start_date +'" data-id="'+ end_date +'" >' + months + '</option>');			
 				i++;
 				}
 			}
         });
 	});
+	
+	$('#months').change(function(){
+		StartDate = $('#months').find(':selected').val();		
+		EndDate = $('#months').find(':selected').data("id");
+				
+		$("#datepicker").datepicker('setDate',StartDate);
+		$("#datepicker2").datepicker('setDate',EndDate);
+		
+	});
+	
 	
 	$(function() {
         $( "#datepicker" ).datepicker();
@@ -181,22 +188,7 @@
 			var diffDays = Math.ceil((date1.getTime() - date.getTime())/1000/3600/24);
 			var numDaysMonth = new Date(date1.getYear(), date1.getMonth()+1, 0).getDate();
 			var division = parseInt($("#number").val())/numDaysMonth*diffDays;
-				if (diffDays>=0){			
-					alert("Diff days: "+diffDays+"<br>"
-								+"Num days in month: "+numDaysMonth+"<br>"
-								+"3rd field calc: "+division);
-						// $('#nxtDate').datepicker({
-							// dateFormat: "dd-M-yy", 
-						// });
-						// $("#currDate").datepicker({
-							// dateFormat: "dd-M-yy", 
-							// minDate:  0,
-							// onSelect: function(date){
-								// var date2 = $('#currDate').datepicker('getDate');								
-								// $('#nxtDate').datepicker('setDate', date2);
-							// }
-						// });
-								alert(date1);
+				if (diffDays>=0){					
 					modal_lov_form_harian_show(date,date1,diffDays);
 				} else
 				{

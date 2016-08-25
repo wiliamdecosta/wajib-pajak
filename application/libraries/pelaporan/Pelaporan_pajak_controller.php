@@ -386,7 +386,7 @@ class Pelaporan_pajak_controller {
 			$table= $ci->transaksi_harian;
 		
 			// print_r($arr_npwd);exit;
-			$q 	= " SELECT *,to_char(start_date,'dd-mm-yyyy') as start_date_string,to_char(end_date,'dd-mm-yyyy') as end_date_string";
+			$q 	= " SELECT *,to_char(start_date,'mm-dd-yyyy') as start_date_string,to_char(end_date,'mm-dd-yyyy') as end_date_string";
 			$q .= " FROM view_finance_period_bayar finance";
 			$q = $ci->db->query($q);
 			$result = $q->result_array();
@@ -403,4 +403,116 @@ class Pelaporan_pajak_controller {
 		echo json_encode($data);
 		exit;	
 	}
+	
+	public function p_vat_type_dtl(){
+		$data = array('rows' => array(), 'success' => false, 'message' => '');
+		try{
+			$result = "";
+			$ci = & get_instance();
+			$ci->load->model('transaksi/transaksi_harian');
+			$table= $ci->transaksi_harian;
+		
+			// print_r($arr_npwd);exit;
+			$q 	= " select vat_type_dtl.* ";
+			$q .= " FROM sikp.p_vat_type_dtl vat_type_dtl";
+			$q .= " WHERE p_vat_type_dtl_id = ". $ci->session->userdata('vat_type_dtl');
+			$q = $ci->db->query($q);
+			$result = $q->result_array();
+			
+			$data['rows'] = $result;
+			$data['success'] = true;
+			$data['message'] = 'data suceeded';
+		}
+		catch (Exception $e) {
+			$table->db->trans_rollback(); //Rollback Trans
+            $data['message'] = $e->getMessage();
+            $data['rows'] = array();
+		}
+		echo json_encode($data);
+		exit;	
+	}
+	
+	public function p_vat_type_dtl_cls(){
+		$data = array('rows' => array(), 'success' => false, 'message' => '');
+		try{
+			$result = "";
+			$ci = & get_instance();
+			$ci->load->model('transaksi/transaksi_harian');
+			$table= $ci->transaksi_harian;
+		
+			// print_r($arr_npwd);exit;
+			$q 	= " select * ";
+			$q .= " FROM sikp.p_vat_type_dtl_cls ";
+			$q .= " WHERE p_vat_type_dtl_id = ". $ci->session->userdata('vat_type_dtl');
+			$q = $ci->db->query($q);
+			$result = $q->result_array();
+			
+			$data['rows'] = $result;
+			$data['success'] = true;
+			$data['message'] = 'data suceeded';
+		}
+		catch (Exception $e) {
+			$table->db->trans_rollback(); //Rollback Trans
+            $data['message'] = $e->getMessage();
+            $data['rows'] = array();
+		}
+		echo json_encode($data);
+		exit;	
+	}
+	
+	public function get_fined_start(){
+		$data = array('rows' => array(), 'success' => false, 'message' => '');
+		
+		$nowdate = getVarClean('nowdate', 'str', ''); 
+		try{
+			$result = "";
+			$ci = & get_instance();
+			$ci->load->model('transaksi/transaksi_harian');
+			$table= $ci->transaksi_harian;
+
+			$q 	= " select to_char(start_date,'MM-YYYY'), due_in_day ";
+			$q .= " FROM p_finance_period ";
+			$q .= " WHERE to_char(start_date,'MM-YYYY') = '". $nowdate ."'";
+			$res = $ci->db->query($q);
+			$result = $res->result_array();
+			
+			$data['rows'] = $result;
+			$data['success'] = true;
+			$data['message'] = 'data suceeded';
+		}
+		catch (Exception $e) {
+			$table->db->trans_rollback(); //Rollback Trans
+            $data['message'] = $e->getMessage();
+            $data['rows'] = array();
+		}
+		echo json_encode($data);
+		exit;	
+	}	
+	
+	// public function banding_data(){
+		// $data = array('rows' => array(), 'success' => false, 'message' => '');
+		// try{
+			// $result = "";
+			// $ci = & get_instance();
+			// $ci->load->model('transaksi/transaksi_harian');
+			// $table= $ci->transaksi_harian;
+		
+			// $q 	= " select due_in_day||'-'||to_char(start_date,'MM-YYYY') as denda_start from p_finance_period  ";
+			// $q .= " FROM p_finance_period ";
+			// $q = $ci->db->query($q);
+			// $result = $q->result_array();
+			
+			// $data['rows'] = $result;
+			// $data['success'] = true;
+			// $data['message'] = 'data suceeded';
+		// }
+		// catch (Exception $e) {
+			// $table->db->trans_rollback(); //Rollback Trans
+            // $data['message'] = $e->getMessage();
+            // $data['rows'] = array();
+		// }
+		// echo json_encode($data);
+		// exit;	
+	// }
+	
 }
