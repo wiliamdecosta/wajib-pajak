@@ -2,83 +2,84 @@
 <style>
 .top-buffer { margin-top:7px; }
 </style>
-<div id="modal_lov_add_laporan" class="modal fade" tabindex="-1" style="overflow-y: scroll;">
-    <div class="modal-dialog" style="width:570px;">
-        <div class="modal-content">
-            <!-- modal title -->
-            <div class="modal-header no-padding">
-                <div class="table-header">
-                    <span class="form-add-edit-title"> Tambah Data Pelaporan</span>
-                </div>
-            </div>
-            <input type="hidden" id="modal_lov_add_laporan_id_val" value="" />
-            <input type="hidden" id="modal_lov_add_laporan_code_val" value="" />
-            <input type="hidden" id="month_id" value="" />
 
-            <!-- modal body -->
-            <div class="modal-body">
+<!-- breadcrumb -->
+<div class="page-bar">
+    <ul class="page-breadcrumb">
+        <li>
+            <a href="<?php base_url();?>">Home</a>
+            <i class="fa fa-circle"></i>
+        </li>
+        <li>
+            <span>Pelaporan Pajak</span>
+        </li>
+    </ul>
+</div>
+<!-- end breadcrumb -->
+<div class="space-4"></div>
+	<div id="modal_lov_add_laporan" class="portlet light bordered">
+
+		<!-- modal title -->		
+		<div class="portlet-title">
+			<div class="caption font-red-sunglo">
+				<span class="caption-subject bold uppercase">Tambah Data Pembayaran</span>
+			</div>
+		</div>
+		<input type="hidden" id="modal_lov_add_laporan_id_val" value="" />
+		<input type="hidden" id="modal_lov_add_laporan_code_val" value="" />
+		<input type="hidden" id="month_id" value="" />
+	
+		<!-- modal body -->
+		<div class="portlet-body form">
+		
+			<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">NPWPD:</label>
+				<input class="col-md-3" value="<?php echo $this->session->userdata('user_name'); ?>">
+			</div>
+				<div class="row top-buffer">
+				<label class="col-md-2 col-md-offset-1">PERIODE:</label>
+				<select id="months" class="col-md-3"></select>
+			</div>
+				<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Klasifikasi:</label>
+				<select id="klasifikasi" class="col-md-3">
+				</select>
+			</div>
+				<div class="row  top-buffer" id="rincian_form">
+				<label class="col-md-2 col-md-offset-1">Rincian:</label>
+				<select id="rincian" class="col-md-3">
+				</select>
+			</div>
+				<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Masa Pajak:</label>
+				<input class="col-md-2 date-picker" type="text" id="datepicker" readonly=""> 
+				<label class="col-md-1">s/d</label>
+				<input class="col-md-2 date-picker" type="text" id="datepicker2" readonly="">
+			</div>
+				<div class="row top-buffer">
+				<a class="col-md-2 col-md-offset-3 btn btn-primary" style="font-size:10px">Upload File Transaksi</a>
+				<label class="col-md-1">atau</label>
+				<a class="col-md-2 btn btn-primary" style="font-size:10px" id="isiformtransaksi">Isi Form Transaksi</a>
+			</div>
+			<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Nilai Omzet:</label>
+				<input class="col-md-3" readonly="" id="omzet_value"  style="text-align:right;">
+			</div>
+				<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Pajak yang Harus dibayar:</label>
+				<input class="col-md-3" readonly=""  id="val_pajak" style="text-align:right;">
+			</div>
+				<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Denda:</label>
+				<input class="col-md-3" readonly="" id="val_denda" style="text-align:right;">
+			</div>
+				<div class="row  top-buffer">
+				<label class="col-md-2 col-md-offset-1">Total Bayar:</label>
+				<input class="col-md-3" readonly="" id="totalBayar" style="text-align:right;">
+			</div>
 			
-				<div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">NPWPD:</label>
-					<input class="col-md-6" value="<?php echo $this->session->userdata('user_name'); ?>">
-				</div>
-                <div class="row top-buffer">
-					<label class="col-md-3 col-md-offset-1">PERIODE:</label>
-					<select id="months" class="col-md-6"></select>
-				</div>
-                <div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Klasifikasi:</label>
-					<select id="klasifikasi" class="col-md-6">
-					</select>
-				</div>
-                <div class="row  top-buffer" id="rincian_form">
-					<label class="col-md-3 col-md-offset-1">Rincian:</label>
-					<select id="rincian" class="col-md-6">
-					</select>
-				</div>
-                <div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Masa Pajak:</label>
-					<input class="col-md-3 date-picker" type="text" id="datepicker" readonly=""> 
-					<label class="col-md-1">s/d</label>
-					<input class="col-md-3 date-picker" type="text" id="datepicker2" readonly="">
-				</div>
-                <div class="row top-buffer">
-					<a class="col-md-3 col-md-offset-4 btn btn-primary" style="font-size:10px">Upload File Transaksi</a>
-					<label class="col-md-1">atau</label>
-					<a class="col-md-3 btn btn-primary" style="font-size:10px" id="isiformtransaksi">Isi Form Transaksi</a>
-				</div>
-				<div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Nilai Omzet:</label>
-					<input class="col-md-5" readonly="" id="omzet_value"  style="text-align:right;">
-				</div>
-                <div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Pajak yang Harus dibayar:</label>
-					<input class="col-md-5" readonly=""  id="val_pajak" style="text-align:right;">
-				</div>
-                <div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Denda:</label>
-					<input class="col-md-5" readonly="" id="val_denda" style="text-align:right;">
-				</div>
-                <div class="row  top-buffer">
-					<label class="col-md-3 col-md-offset-1">Total Bayar:</label>
-					<input class="col-md-5" readonly="" id="totalBayar" style="text-align:right;">
-				</div>
-                
-            </div>
-            <!-- modal footer -->
-            <div class="modal-footer no-margin-top">
-                <div class="bootstrap-dialog-footer">
-                    <div class="bootstrap-dialog-footer-buttons">
-                        <button class="btn btn-danger btn-xs radius-4" data-dismiss="modal">
-                            <i class="ace-icon fa fa-times"></i>
-                            Close
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.end modal -->
+		</div>			
+	</div><!-- /.end modal -->
 
 <?php  $this->load->view('pelaporan/lov_form_harian.php'); ?>
 
@@ -107,7 +108,7 @@
 					i=0;
 					if (data1.rows.length >0){
 						while(i<=data1.rows.length){
-							$('#rincian').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +'>'+ data.rows[0].vat_code +'</option>');
+							$('#rincian').append('<option value='+ data1.rows[0].vat_code +' data-id='+ data1.rows[0].vat_pct +'>'+ data1.rows[0].vat_code +'</option>');
 						i++;	
 						}
 					} else{
@@ -116,32 +117,7 @@
 			}
         });
 	});	
-    jQuery(function($) {
-        $("#modal_lov_add_laporan_btn_blank").on('click', function() {
-            $("#"+ $("#modal_lov_add_laporan_id_val").val()).val("");
-            $("#"+ $("#modal_lov_add_laporan_code_val").val()).val("");
-            $("#modal_lov_add_laporan").modal("toggle");
-        });
-    });
-
-    function modal_lov_add_laporan_show(the_id_field, the_code_field, customer_ref) {
-        modal_lov_add_laporan_set_field_value(the_id_field, the_code_field);
-        $("#modal_lov_add_laporan").modal({backdrop: 'static'});
-    }
-
-
-    function modal_lov_add_laporan_set_field_value(the_id_field, the_code_field) {
-         $("#modal_lov_add_laporan_id_val").val(the_id_field);
-         $("#modal_lov_add_laporan_code_val").val(the_code_field);
-    }
-
-    function modal_lov_add_laporan_set_value(the_id_val, the_code_val) {
-         $("#"+ $("#modal_lov_add_laporan_id_val").val()).val(the_id_val);
-         $("#"+ $("#modal_lov_add_laporan_code_val").val()).val(the_code_val);
-         $("#modal_lov_add_laporan").modal("toggle");
-
-         $("#"+ $("#modal_lov_add_laporan_id_val").val()).change();
-    }
+    
 
     $('#months').click(function(){
 		$.ajax({

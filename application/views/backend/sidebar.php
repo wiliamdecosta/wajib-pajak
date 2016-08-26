@@ -41,7 +41,7 @@
         </a>
     </li>
 
-    <li class="nav-item" data-source="pelaporan.pelaporan_pajak">
+    <li class="nav-item" data-source="pelaporan.lov_add_laporan">
         <a href="#" class="nav-link nav-toggle">
             <i class="fa fa-newspaper-o"></i>
             <span class="title">Pelaporan Pajak</span>
