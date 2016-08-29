@@ -77,7 +77,10 @@
 				<label class="col-md-2 col-md-offset-1">Total Bayar:</label>
 				<input class="col-md-3" readonly="" id="totalBayar" style="text-align:right;">
 			</div>
-			
+			<div class="form-actions right">
+				<button class="btn default" type="button">Cancel</button>
+				<button class="btn green" type="submit">Submit</button>
+			</div>
 		</div>			
 	</div><!-- /.end modal -->
 

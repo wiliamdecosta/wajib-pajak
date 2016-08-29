@@ -78,17 +78,36 @@
 					}
 			}
 		});
+		
+		var date_denda_signed = false;
+			$.ajax({							
+				async: false,
+				url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/get_fined_start",
+				datatype: "json",            
+				type: "POST",
+				data: {nowdate:moment($('#datepicker').val()).format("YYYY-MM-"),
+						getdate:moment($('#datepicker').val()).format("MM-YYYY")
+				},
+				success: function (response) {
+					var data = $.parseJSON(response);
+					alert(data.rows[0].booldenda);
+					if(parseInt(data.rows[0].booldenda) >= 0){
+						$('#val_denda').val( 2 / 100 * parseInt($('#val_pajak').val()) );
+						// alert("AJAX");
+					};
+				}
+			});		
 		// Hitung Denda
-		i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
-		while (i < $("#grid-table-laporan").getRowData().length){
-			rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
-			if(rowId == -1){
-				$('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
-				break;
-			}	 			
-		i++;
-		}			
-		alert("val denda" + $('#val_denda').val());
+		// i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
+		// while (i < $("#grid-table-laporan").getRowData().length){
+			// rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
+			// if(rowId == -1){
+				// $('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
+				// break;
+			// }	 			
+		// i++;
+		// }			
+		// alert("val denda" + $('#val_denda').val());
 		$('#totalBayar').val( parseInt($('#val_pajak').val()) + parseInt($('#val_denda').val()) );
 		i=0;
 			
@@ -100,22 +119,21 @@
 			jum_penjualan = $('#grid-table-laporan').jqGrid('getCell',i,'jum_penjualan');
 			descript = $('#grid-table-laporan').jqGrid('getCell',i,'descript');
 			if((No_UrutAwal.length >0) || (No_UrutAkhir.length >0) || (jum_faktur !=0) || (jum_penjualan !=0) || (descript.length >0)){
-				items[i] = {trans_date:''};
-				items[i] = {bill_no:''};
-				items[i] = {bill_no_end:''};
-				items[i] = {bill_count:''};
-				items[i] = {service_desc:''};
-				items[i] = {service_charge:''};
-				items[i] = {descript:''};
+				// items[i] = {trans_date:''};
+				// items[i] = {bill_no:''};
+				// items[i] = {bill_no_end:''};
+				// items[i] = {bill_count:''};
+				// items[i] = {service_desc:''};
+				// items[i] = {service_charge:''};
+				// items[i] = {descript:''};
 				
-				mydata[i].trans_date = Tanggal;
-				mydata[i].bill_no = No_UrutAwal;
-				mydata[i].bill_no_end = No_UrutAkhir;
-				mydata[i].bill_count = jum_faktur;
-				mydata[i].service_desc = null;
-				mydata[i].service_charge = jum_penjualan;
-				mydata[i].descript = description;
-			
+				// mydata[i].trans_date = Tanggal;
+				// mydata[i].bill_no = No_UrutAwal;
+				// mydata[i].bill_no_end = No_UrutAkhir;
+				// mydata[i].bill_count = jum_faktur;
+				// mydata[i].service_desc = null;
+				// mydata[i].service_charge = jum_penjualan;
+				// mydata[i].descript = description;			
 			}
 		i++;
 		};
@@ -134,16 +152,20 @@
         $("#modal_lov_form_harian").modal({backdrop: 'static'});
 		i = 0;
 		mydata = [];
-		var date_denda_signed;
+		var date_denda_signed = false;
 		$.ajax({							
 			async: false,
 			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/get_fined_start",
 			datatype: "json",            
 			type: "POST",
-			data: {nowdate:moment($('#datepicker').val()).format("MM-YYYY")},
+			data: {nowdate:moment($('#datepicker').val()).format("YYYY-MM-"),
+					getdate:moment($('#datepicker').val()).format("MM-YYYY")
+			},
 			success: function (response) {
 				var data = $.parseJSON(response);
-				date_denda_signed = data.rows[0].due_in_day;
+
+				if(data.rows[0].booldenda);
+				// date_denda_signed = data.rows[0].due_in_day;
 			}
 		});	
 		while(i < diffDays+1){
@@ -154,14 +176,8 @@
 			mydata[i] = {jum_faktur:''};
 			mydata[i] = {jum_penjualan:''};
 			mydata[i].Tanggal = dateFormatted;
-			// alert(dateFormatted +' __ '+ date_denda_signed +'-'+moment(dateM1).format('MM-YYYY'))
-			if( dateFormatted == date_denda_signed +"-"+ moment(dateM1).format('MM-YYYY')){
-				mydata[i].keyid = -1;
-			} else{
-				mydata[i].keyid = i;
-			};
-				mydata[i].jum_faktur = 0;
-				mydata[i].jum_penjualan = 0;
+			mydata[i].jum_faktur = 0;
+			mydata[i].jum_penjualan = 0;
 			i++;
 		}		
 			jQuery(function($) {
@@ -197,6 +213,10 @@
 				cellEdit : true,
 				cellsubmit : 'clientArray',
 				onSelectRow: function (rowid) {						
+				},
+				beforeSaveCell: function(rowid,celname,value,iRow,iCol) {
+					alert('New cell value: "'+value+'"');
+					// alert('New cell value: "'+value+'"');
 				},
 				sortorder:'',
 				pager: '#grid-pager-laporan',

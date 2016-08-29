@@ -464,18 +464,22 @@ class Pelaporan_pajak_controller {
 		$data = array('rows' => array(), 'success' => false, 'message' => '');
 		
 		$nowdate = getVarClean('nowdate', 'str', ''); 
+		$getdate = getVarClean('getdate', 'str', ''); 
 		try{
 			$result = "";
 			$ci = & get_instance();
 			$ci->load->model('transaksi/transaksi_harian');
 			$table= $ci->transaksi_harian;
-
-			$q 	= " select to_char(start_date,'MM-YYYY'), due_in_day ";
-			$q .= " FROM p_finance_period ";
-			$q .= " WHERE to_char(start_date,'MM-YYYY') = '". $nowdate ."'";
+			
+			$q 	= 	"SELECT DATE_PART('day', current_date::timestamp - TO_DATE('". $nowdate ."'||due_in_day)::timestamp) boolDenda 
+					from p_finance_period 
+					where to_char(start_date,'MM-YYYY') = '". $getdate ."'";
+			// $q 	= " select to_char(start_date,'MM-YYYY'), due_in_day ";
+			// $q .= " FROM p_finance_period ";
+			// $q .= " WHERE to_char(start_date,'MM-YYYY') = '". $nowdate ."'";
 			$res = $ci->db->query($q);
 			$result = $res->result_array();
-			
+			// print_r($q);exit;
 			$data['rows'] = $result;
 			$data['success'] = true;
 			$data['message'] = 'data suceeded';
