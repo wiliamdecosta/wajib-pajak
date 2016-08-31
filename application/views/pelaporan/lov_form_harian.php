@@ -1,8 +1,12 @@
 <script type="text/javascript" src="<?php echo base_url(); ?>/assets/global/plugins/moment.min.js"></script>
 <style>
 .top-buffer { margin-top:7px; }
+
+body.modal-open {
+    overflow: hidden;
+}
 </style>
-<div id="modal_lov_form_harian" class="modal fade" tabindex="-1">
+<div id="modal_lov_form_harian" class="modal fade"  tabindex="-1">
     <div class="modal-dialog" style="width:960px;">
         <div class="modal-content">
             <!-- modal title -->
@@ -15,8 +19,9 @@
             <input type="hidden" id="modal_lov_form_harian_code_val" value="" />
             <input type="hidden" id="modal_lov_vat_pct_val" value="" />
 
+
             <!-- modal body -->
-            <div class="modal-body" style="height:500px; overflow-y:scroll;">
+            <div class="modal-body" style="overflow-y:hidden;">
 			
 				<div class="tab-pane active">
 					<table id="grid-table-laporan"></table>
@@ -28,7 +33,7 @@
             <div class="modal-footer no-margin-top">
                 <div class="bootstrap-dialog-footer">
                     <div class="bootstrap-dialog-footer-buttons">
-                        <button class="btn btn-default btn-xs radius-4" id="simpan" data-dismiss="modal">
+                        <button class="btn btn-default btn-xs radius-4" id="simpan">
                             <i class="ace-icon fa fa-floppy"></i>
                             Simpan
                         </button>
@@ -72,7 +77,7 @@
 							type: "POST",
 							success: function (response) {
 								var data = $.parseJSON(response);
-								$('#val_pajak').val( (data.rows[0].vat_pct * parseInt($('#omzet_value').val())) / 100 );
+								$('#val_pajak').val( parseFloat((data.rows[0].vat_pct * parseInt($('#omzet_value').val())) / 100).toFixed(2) );
 							}
 						});			
 					}
@@ -92,51 +97,101 @@
 					var data = $.parseJSON(response);
 					alert(data.rows[0].booldenda);
 					if(parseInt(data.rows[0].booldenda) >= 0){
-						$('#val_denda').val( 2 / 100 * parseInt($('#val_pajak').val()) );
-						// alert("AJAX");
+						$('#val_denda').val( parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2) );
+						
 					};
 				}
 			});		
 		// Hitung Denda
-		// i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
-		// while (i < $("#grid-table-laporan").getRowData().length){
-			// rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
-			// if(rowId == -1){
-				// $('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
-				// break;
-			// }	 			
-		// i++;
-		// }			
+		i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
+		while (i < $("#grid-table-laporan").getRowData().length){
+			rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
+			if(rowId == -1){
+				$('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
+				break;
+			}	 			
+		i++;
+		}			
 		// alert("val denda" + $('#val_denda').val());
-		$('#totalBayar').val( parseInt($('#val_pajak').val()) + parseInt($('#val_denda').val()) );
+		$('#totalBayar').val( parseFloat(parseInt($('#val_pajak').val()) + parseInt($('#val_denda').val())).toFixed(2) );
 		i=0;
-			
+		items = [];	
 		while (i < $("#grid-table-laporan").getRowData().length){
 			Tanggal = $('#grid-table-laporan').jqGrid('getCell',i,'Tanggal');
 			No_UrutAwal = $('#grid-table-laporan').jqGrid('getCell',i,'No_UrutAwal');
 			No_UrutAkhir = $('#grid-table-laporan').jqGrid('getCell',i,'No_UrutAkhir');
 			jum_faktur = $('#grid-table-laporan').jqGrid('getCell',i,'jum_faktur');
 			jum_penjualan = $('#grid-table-laporan').jqGrid('getCell',i,'jum_penjualan');
-			descript = $('#grid-table-laporan').jqGrid('getCell',i,'descript');
+			vat_charge = parseFloat($('#totalBayar').val());
+			description = $('#grid-table-laporan').jqGrid('getCell',i,'descript');
 			if((No_UrutAwal.length >0) || (No_UrutAkhir.length >0) || (jum_faktur !=0) || (jum_penjualan !=0) || (descript.length >0)){
-				// items[i] = {trans_date:''};
-				// items[i] = {bill_no:''};
-				// items[i] = {bill_no_end:''};
-				// items[i] = {bill_count:''};
-				// items[i] = {service_desc:''};
-				// items[i] = {service_charge:''};
-				// items[i] = {descript:''};
+				items[i] = {t_cust_acc_dtl_trans_id:''};
+				items[i] = {t_cust_account_id:''};
+				items[i] = {p_vat_type_dtl_id:''};
+				items[i] = {npwd:''};
+				items[i] = {trans_date:''};
+				items[i] = {trans_date_txt:''};
+				items[i] = {bill_no:''};
+				items[i] = {bill_no_end:''};
+				items[i] = {bill_count:''};
+				items[i] = {service_desc:''};
+				items[i] = {service_charge:''};
+				items[i] = {vat_charge:''};
+				items[i] = {description:''};
+				items[i] = {_display_field_:''};
 				
-				// mydata[i].trans_date = Tanggal;
-				// mydata[i].bill_no = No_UrutAwal;
-				// mydata[i].bill_no_end = No_UrutAkhir;
-				// mydata[i].bill_count = jum_faktur;
-				// mydata[i].service_desc = null;
-				// mydata[i].service_charge = jum_penjualan;
-				// mydata[i].descript = description;			
+				items[i].t_cust_acc_dtl_trans_id = Tanggal;
+				items[i].t_cust_account_id = '<?php echo $this->session->userdata('cust_account_id'); ?>';;
+				items[i].p_vat_type_dtl_id = Tanggal;
+				items[i].npwd = '<?php echo $this->session->userdata('npwd'); ?>';
+				items[i].trans_date = Tanggal;
+				items[i].trans_date_txt = Tanggal;
+				items[i].bill_no = No_UrutAwal;
+				items[i].bill_no_end = No_UrutAkhir;
+				items[i].bill_count = jum_faktur;
+				items[i].service_desc = null;
+				items[i].service_charge = jum_penjualan;
+				items[i].vat_charge = jum_penjualan;
+				items[i].descript = description;			
+				items[i]._display_field_ = "";			
 			}
-		i++;
+			i++;
 		};
+		console.log(items);
+		$.ajax({							
+				async: false,
+				url: "<?php echo WS_JQGRID ?>transaksi.cust_acc_controller/create",
+				datatype: "json",            
+				type: "POST",
+				//data: {items:items},
+				success: function (response) {
+					
+				}
+		});
+		
+		//Update Data
+		i = 0; dataupdate =[];
+		while (i < $("#grid-table-laporan").getGridParam("reccount"))
+		{
+			keyidchecker = $('#grid-table-laporan').jqGrid('getCell',i,'key_id');
+			if(keyidchecker <0)
+			{
+				dataupdate[i] = $('#grid-table-laporan').jqGrid('getCell',i,'key_id');
+				dataupdate[i] = {service_charge:''};
+				dataupdate[i] = {t_cust_account_id:''};
+				dataupdate[i] = {npwd:''};
+				dataupdate[i] = {bill_no:''};
+				dataupdate[i] = {bill_no_end:''};
+				dataupdate[i] = {bill_count:''};
+				dataupdate[i] = {service_desc:''};
+				dataupdate[i] = {service_charge:''};
+				dataupdate[i] = {vat_charge:''};
+				dataupdate[i] = {description:''};
+				
+				dataupdate[i].t_cust_acc_dtl_trans_id = Tanggal;
+			}
+			i++;
+		}
 	});
 
     jQuery(function($) {
@@ -151,7 +206,9 @@
         modal_lov_form_harian_set_field_value(the_id_field, the_code_field);
         $("#modal_lov_form_harian").modal({backdrop: 'static'});
 		i = 0;
-		mydata = [];
+		
+		mydata = [];	
+
 		var date_denda_signed = false;
 		$.ajax({							
 			async: false,
@@ -165,39 +222,103 @@
 				var data = $.parseJSON(response);
 
 				if(data.rows[0].booldenda);
-				// date_denda_signed = data.rows[0].due_in_day;
+				date_denda_signed = data.rows[0].due_in_day;
 			}
 		});	
 		while(i < diffDays+1){
 			dateM1 = moment(the_id_field).add(i,'days');
-			dateFormatted = moment(dateM1).format('DD-MM-YYYY');
+			dateFormatted = moment(dateM1).format('DD-MM-YYYY');			
 			mydata[i] = {Tanggal:''};
 			mydata[i] = {keyid:''};
 			mydata[i] = {jum_faktur:''};
 			mydata[i] = {jum_penjualan:''};
-			mydata[i].Tanggal = dateFormatted;
-			mydata[i].jum_faktur = 0;
+			mydata[i] = {descript:''};
+			mydata[i] = {No_UrutAwal:''};
+			mydata[i] = {No_UrutAkhir:''};
+			mydata[i] = {t_cust_acc_dtl:''};
+			mydata[i] = {t_cust_account:''};
 			mydata[i].jum_penjualan = 0;
-			i++;
-		}		
-			jQuery(function($) {
+			mydata[i].keyid = i;
+			mydata[i].jum_faktur = 0;
+			mydata[i].descript = '';
+			mydata[i].Tanggal = dateFormatted;
+			i++;				
+		}
+			
+		dateFormatted1 = moment(the_id_field).format('YYYY-MM-DD');
+		dateFormatted2 = moment(the_code_field).format('YYYY-MM-DD');			
+
+		
+		$.ajax({							
+			async: false,
+			url: "<?php echo WS_JQGRID ?>transaksi.cust_acc_trans_controller/read_acc_trans",
+			datatype: "json",            
+			type: "POST",
+			data: {	t_cust_account_id:'<?php echo $this->session->userdata('cust_account_id'); ?>',
+					start_period : dateFormatted1+ ' 00:00:00',
+					end_period : dateFormatted2+ ' 00:00:00',
+					vat_type_dtl :'<?php echo $this->session->userdata('vat_type_dtl'); ?>'
+			},
+			success: function (response) {
+				i = 0;
+				var data = $.parseJSON(response);
+				if(data.records > 0){
+					while(i < diffDays+1){
+							mydata[i].jum_penjualan = data.rows[i].service_charge;
+							mydata[i].descript = data.rows[i].description;
+							mydata[i].jum_faktur = data.rows[i].bill_count;
+							mydata[i].No_UrutAwal = data.rows[i].bill_no;
+							mydata[i].No_UrutAkhir = data.rows[i].bill_no_end;
+							mydata[i].t_cust_acc_dtl = data.rows[i].t_cust_acc_dtl_trans_id;
+							mydata[i].t_cust_account = data.rows[i].t_cust_account_id;
+						// }
+					i++;
+					}
+				} else{
+				}
+			}
+		});
+		
+		$('#grid-table-laporan').trigger( 'reloadGrid' );
+		jQuery("#grid-table-laporan").jqGrid('setGridParam',
+				{ 
+					datatype: "local",
+					data:mydata
+				})
+		.trigger("reloadGrid"); //reload data if transaction button pushed 
+		
+		jQuery(function($) {
 			var grid_selector = "#grid-table-laporan";
 			var pager_selector = "#grid-pager-laporan";
 	
 			jQuery("#grid-table-laporan").jqGrid({
-				// url: '<?php echo WS_JQGRID."history.history_transaksi_controller/read"; ?>',
-				// datatype: "json",
+				// url: '<?php echo WS_JQGRID."history.history_transaksi_controller/read"; ?>',				
+				datatype: "json",
 				data: mydata,
 				datatype: "local",
 				// mtype: "POST",
-				colNames: ["keyid","Tanggal", "No. Urut Faktur Awal", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"],			
+				colNames: ["keyid","Tanggal","t_cust_acc_dtl","t_cust_account","No. Urut Faktur Awal", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"],			
 				colModel: [
-					{label: 'keyid', name: 'keyid', hidden: false, cellEdit: false},					              
+					{label: 'keyid', name: 'keyid', hidden: false, cellEdit: true},					              
+					{label: 't_cust_acc_dtl_id', name: 't_cust_acc_dtl', hidden: false, cellEdit: false},					              
+					{label: 't_cust_account_id', name: 't_cust_account', hidden: false, cellEdit: false},					              
 					{label: 'Tanggal', name: 'Tanggal', hidden: false, cellEdit: false},              
 					{label: 'No. Urut Faktur Awal', name: 'No_UrutAwal', hidden: false, editable: true, cellEdit: true},               
 					{label: 'No. Urut Faktur Akhir', name: 'No_UrutAkhir', hidden: false, editable: true, cellEdit: true},
-					{label: 'Jumlah Faktur', name: 'jum_faktur', hidden: false, editable: true, cellEdit: true},
-					{label: 'Jumlah Penjualan', name: 'jum_penjualan', hidden: false, editable: true, cellEdit: true},
+					{label: 'Jumlah Faktur', name: 'jum_faktur', hidden: false, editable: true, cellEdit: true, editrules:{number:true},
+						editoptions: { dataInit: function (elem) 
+							{ 
+								$(elem).numeric(/*some optional parameters*/); 
+							}
+						}
+					},
+					{label: 'Jumlah Penjualan', name: 'jum_penjualan', hidden: false, editable: true, cellEdit: true, editrules:{number:true},
+						editoptions: { dataInit: function (elem) 
+							{ 
+								$(elem).numeric(/*some optional parameters*/); 
+							}
+						}
+					},
 					{label: 'Deskripsi', name: 'descript', hidden: false, editable: true, cellEdit: true}                
 				],
 				height: '100%',
@@ -215,8 +336,24 @@
 				onSelectRow: function (rowid) {						
 				},
 				beforeSaveCell: function(rowid,celname,value,iRow,iCol) {
-					alert('New cell value: "'+value+'"');
-					// alert('New cell value: "'+value+'"');
+					Tanggal = $('#grid-table-laporan').jqGrid('getCell',rowid,'Tanggal');
+					No_UrutAwal = $('#grid-table-laporan').jqGrid('getCell',rowid,'No_UrutAwal');
+					No_UrutAkhir = $('#grid-table-laporan').jqGrid('getCell',rowid,'No_UrutAkhir');
+					jum_faktur = $('#grid-table-laporan').jqGrid('getCell',rowid,'jum_faktur');
+					jum_penjualan = $('#grid-table-laporan').jqGrid('getCell',rowid,'jum_penjualan');
+					description = $('#grid-table-laporan').jqGrid('getCell',rowid,'descript');
+					if((No_UrutAwal.length >0) || (No_UrutAkhir.length >0) || (jum_faktur >0) || (jum_penjualan >0) || (descript.length >0))
+					{
+						$("#grid-table-laporan").jqGrid('setCell', rowid, 'keyid', -1);
+					} else
+					{
+						$("#grid-table-laporan").jqGrid('setCell', rowid, 'keyid', -99);
+					};
+					// alert($('#grid-table-laporan').jqGrid('getCell',rowid,'keyid'));
+					// now change the internal local data
+					// grid_selector.jqGrid('getLocalRow', rowid).myColumn = newValue;
+					// alert();
+					 // $this.jqGrid("setCell", rowid, 'amount', quantity * price);
 				},
 				sortorder:'',
 				pager: '#grid-pager-laporan',

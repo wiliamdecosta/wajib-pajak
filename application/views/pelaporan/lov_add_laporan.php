@@ -28,7 +28,7 @@
 		<input type="hidden" id="modal_lov_add_laporan_id_val" value="" />
 		<input type="hidden" id="modal_lov_add_laporan_code_val" value="" />
 		<input type="hidden" id="month_id" value="" />
-	
+		<input type="hidden" id="t_cust_acc_dtl_trans_id" value="" />
 		<!-- modal body -->
 		<div class="portlet-body form">
 		
@@ -77,9 +77,11 @@
 				<label class="col-md-2 col-md-offset-1">Total Bayar:</label>
 				<input class="col-md-3" readonly="" id="totalBayar" style="text-align:right;">
 			</div>
+			
+			<div class="space-4"></div>
+			
 			<div class="form-actions right">
-				<button class="btn default" type="button">Cancel</button>
-				<button class="btn green" type="submit">Submit</button>
+				<button class="btn green" type="submit" id="submit-btn">Submit</button>
 			</div>
 		</div>			
 	</div><!-- /.end modal -->
@@ -89,7 +91,6 @@
 <script>
 	$(document).ready(function(){
 		$.ajax({
-            //async: false,
 			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl",
 			datatype: "json",            
             type: "POST",
@@ -102,7 +103,6 @@
 	});
 	$(document).ready(function(){
 		$.ajax({
-            //async: false,
 			url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl_cls",
 			datatype: "json",            
             type: "POST",
@@ -162,7 +162,9 @@
 		var date1 = $("#datepicker2").datepicker('getDate');
 		var dates = $("#datepicker2").val();
 		var dates1 = $("#datepicker2").val();
-		
+		var datesFormat = moment(date).format('YYYY-MM-DD');
+		var dates1Format = moment(date1).format('YYYY-MM-DD');
+				
 		if ((dates.length != 0) && (dates1.length != 0)){
 			var diffDays = Math.ceil((date1.getTime() - date.getTime())/1000/3600/24);
 			var numDaysMonth = new Date(date1.getYear(), date1.getMonth()+1, 0).getDate();
@@ -178,5 +180,33 @@
 			swal('error','Isi terlebih dahulu periode masa pajak secara lengkap','error');
 		}
 		
-      });
+    });
+	
+	$('#submit-btn').on('click',function() {
+		items = [];
+		items["user_name"] = '<?php echo $this->session->userdata('user_name'); ?>';
+		items["npwd"] = '<?php echo $this->session->userdata('npwd'); ?>';
+		items["t_cust_account_id"] = '<?php echo $this->session->userdata('t_cust_account_id'); ?>';
+		items["finance_period"] = $('#months').find(':selected').val();
+		items["p_vat_type_dtl_id"] = '<?php echo $this->session->userdata('vat_type_dtl'); ?>';
+		items["p_vat_type_dtl_cls_id"] = '';
+		items["penalty_amount"] = $('#val_denda').val();
+		items["start_period"] = '';
+		items["end_period"] = '';
+		items["total_trans_amount"] = '';
+		items["end_period"] = '';
+		items["total_vat_amount"] = '';
+		$.ajax
+		({
+			url: "<?php echo WS_JQGRID ?>transaksi.cust_acc_trans_controller/read_acc_trans",
+			// url: "<?php echo WS_JQGRID ?>pelaporan.t_vat_settlement_controller/createSptpd",
+			datatype: "json",            
+            type: "POST",
+			data: {items: items},
+            success: function (response) 
+				{
+				
+				}
+        });
+	});
 </script>

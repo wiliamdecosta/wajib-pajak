@@ -55,21 +55,6 @@ class Transaksi_harian extends Abstract_model {
 		
 		parent::__construct();
 	}
-
-    public function get_pelaporan_data(){
-			$whereClause = "
-                        WHERE
-                             
-                        GROUP BY
-                        		 t_cust_acc_dtl_trans.t_cust_account_id,
-                                 t_cust_acc_dtl_trans.p_vat_type_dtl_id,
-                        		 p_finance_period.p_finance_period_id,
-                        		 p_finance_period.code,
-                        		 t_customer_order.p_order_status_id,
-                        		 case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END,
-                             case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END";
-		
-	}
 	
 	public function getAllData($start = 0, $limit = 30, $orderby = '', $ordertype = 'ASC') {
 
@@ -188,7 +173,7 @@ class Transaksi_harian extends Abstract_model {
 			$this->db->limit($limit, $start);
         }
 
-		print_r($this->db->get_compiled_select());exit;
+		// print_r($this->db->get_compiled_select());exit;
 		$queryResult = $this->db->get();
 		$items = $queryResult->result_array();
 

@@ -38,11 +38,9 @@ class Transaksi_harian_controller {
                 "search_str" => isset($_REQUEST['searchString']) ? $_REQUEST['searchString'] : null
             );
 
-            // Filter Table
             $req_param['where'] = array();
-			// print_r($ci->session->userdata('cust_account_id'));exit;
 			$table->setCriteria("
-			t_cust_acc_dtl_trans.t_cust_account_id = ". $ci->session->userdata('cust_account_id') ." AND 
+			t_cust_acc_dtl_trans.t_cust_account_id > ". $ci->session->userdata('cust_account_id') ." AND 
 			trans_date >= CASE
 					WHEN  t_vat_setllement.start_period is null THEN p_finance_period.start_date
 					ELSE t_vat_setllement.start_period
@@ -92,22 +90,18 @@ class Transaksi_harian_controller {
         $oper = getVarClean('oper', 'str', '');
         switch ($oper) {
             case 'add' :
-                // permission_check('add-user');
                 $data = $this->create();
             break;
 
             case 'edit' :
-                // permission_check('edit-user');
                 $data = $this->update();
             break;
 
             case 'del' :
-                // permission_check('delete-user');
                 $data = $this->destroy();
             break;
 
             default:
-                // permission_check('view-user');
                 $data = $this->read();
             break;
         }
