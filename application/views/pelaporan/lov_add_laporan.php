@@ -135,7 +135,8 @@
 				var months = data.rows[i].code;
 				var start_date = data.rows[i].start_date_string;
 				var end_date = data.rows[i].end_date_string;
-				$('#months').append('<option value="'+ start_date +'" data-id="'+ end_date +'" >' + months + '</option>');			
+				var p_id = data.rows[i].p_finance_period_id;
+				$('#months').append('<option value="'+ start_date +'" data-id="'+ end_date +'" data-idkey = "'+ p_id +'">' + months + '</option>');			
 				i++;
 				}
 			}
@@ -183,26 +184,54 @@
     });
 	
 	$('#submit-btn').on('click',function() {
-		items = [];
-		items["user_name"] = '<?php echo $this->session->userdata('user_name'); ?>';
-		items["npwd"] = '<?php echo $this->session->userdata('npwd'); ?>';
-		items["t_cust_account_id"] = '<?php echo $this->session->userdata('t_cust_account_id'); ?>';
-		items["finance_period"] = $('#months').find(':selected').val();
-		items["p_vat_type_dtl_id"] = '<?php echo $this->session->userdata('vat_type_dtl'); ?>';
-		items["p_vat_type_dtl_cls_id"] = '';
-		items["penalty_amount"] = $('#val_denda').val();
-		items["start_period"] = '';
-		items["end_period"] = '';
-		items["total_trans_amount"] = '';
-		items["end_period"] = '';
-		items["total_vat_amount"] = '';
+		items = new Array();
+		items.push 
+		({
+					'user_name' : '<?php echo $this->session->userdata('user_name'); ?>',
+					'npwd' : '<?php echo $this->session->userdata('npwd'); ?>',	
+					't_cust_account_id' : '<?php echo $this->session->userdata('cust_account_id'); ?>',	
+					'finance_period' : $('#months').find(':selected').data("idkey"),	
+					'p_vat_type_dtl_id' : <?php echo $this->session->userdata('vat_type_dtl'); ?>,	
+					'p_vat_type_dtl_cls_id' : '',	
+					'start_period' : moment($('#datepicker').val()).format('DD-MM-YYYY'),	
+					'end_period' : moment($('#datepicker2').val()).format('DD-MM-YYYY'),	
+					'total_trans_amount' :  $('#omzet_value').val(),	
+					'total_vat_amount' : $('#totalBayar').val()
+		});	
+		// items = [];
+		// items["user_name"] = '<?php echo $this->session->userdata('user_name'); ?>';
+		// items["npwd"] = '<?php echo $this->session->userdata('npwd'); ?>';
+		// items["t_cust_account_id"] = '<?php echo $this->session->userdata('t_cust_account_id'); ?>';
+		// items["finance_period"] = $('#months').find(':selected').val();
+		// items["p_vat_type_dtl_id"] = <?php echo $this->session->userdata('vat_type_dtl'); ?>;
+		// items["p_vat_type_dtl_cls_id"] = '';
+		// items["penalty_amount"] = $('#val_denda').val();
+		// items["start_period"] = moment($('#datepicker').val()).format('YYYY-MM-DD');
+		// items["end_period"] = moment($('#datepicker2').val()).format('YYYY-MM-DD');
+		// items["total_trans_amount"] = $('#omzet_value').val();
+		// items["total_vat_amount"] = $('#totalBayar').val();
 		$.ajax
 		({
-			url: "<?php echo WS_JQGRID ?>transaksi.cust_acc_trans_controller/read_acc_trans",
-			// url: "<?php echo WS_JQGRID ?>pelaporan.t_vat_settlement_controller/createSptpd",
+			url: "<?php echo WS_JQGRID ?>transaksi.t_vat_settlement_controller/createSPTPD",
 			datatype: "json",            
             type: "POST",
-			data: {items: items},
+			data: 
+				{
+					end_period : moment($('#datepicker2').val()).format('DD-MM-YYYY'),
+					items: JSON.stringify(items),
+					t_cust_account_id : '<?php echo $this->session->userdata('cust_account_id'); ?>',
+					npwd : '<?php echo $this->session->userdata('npwd'); ?>',
+					p_finance_period : $('#months').find(':selected').val(),
+					p_vat_type_dtl_cls_id : '',
+					p_vat_type_dtl_id : $('#klasifikasi').find(':selected').val(),
+					penalty_amount : $('#val_denda').find(':selected').val(),
+					percentage : 7,
+					start_period : 	moment($('#datepicker').val()).format('YYYY-MM-DD'),
+					t_cust_account_id : <?php echo $this->session->userdata('cust_account_id');?>,
+					total_amount :  $('#totalBayar').find(':selected').val(),
+					total_trans_amount : $('#omzet_value').val(),
+					total_vat_amount : $('#totalBayar').val()
+				},
             success: function (response) 
 				{
 				
