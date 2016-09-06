@@ -52,7 +52,7 @@ body.modal-open {
 	$('#simpan').click(function(){
 		var $grid = $('#grid-table-laporan');
 		var colSum = $grid.jqGrid('getCol', 'jum_penjualan', false, 'sum');
-		$('#omzet_value').html(omzet_value);
+		// $('#omzet_value').html(omzet_value);
 		$('#omzet_value').val(colSum);
 		
 		$.ajax({
@@ -64,11 +64,13 @@ body.modal-open {
 					var data = $.parseJSON(response);
 					var i = 0;
 					if (data.rows.length > 0){
-						while(i<=data.rows.length){
-							$('#rincian').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +'>'+ data.rows[0].vat_code +'</option>');
-						i++;	
-						}
-					} else{
+						// while(i<=data.rows.length){
+							// $('#rincian').append('<option value='+ data.rows[0].vat_code +' data-id='+ data.rows[0].vat_pct +'>'+ data.rows[0].vat_code +'</option>');
+						// i++;	
+						$('#val_pajak').val( parseFloat((data.rows[0].vat_pct * parseInt($('#omzet_value').val())) / 100).toFixed(2) );
+						// }
+					} else
+					{
 						$('#rincian_form').hide(100);
 						$.ajax({
 							url: "<?php echo WS_JQGRID ?>pelaporan.pelaporan_pajak_controller/p_vat_type_dtl",
@@ -95,8 +97,18 @@ body.modal-open {
 				success: function (response) {
 					var data = $.parseJSON(response);
 					if(parseInt(data.rows[0].booldenda) >= 0){
-						$('#val_denda').val( parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2) );
-						
+						if(parseInt($('#val_pajak').val()) <= 0 )
+						{
+							
+							alert('nol');
+						} else
+						{						
+							alert(parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2));
+							$('#val_denda').val( parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2) );
+						}						
+					}else
+					{
+						$('#val_denda').val(parseInt(0));
 					};
 				}
 			});		
@@ -105,12 +117,12 @@ body.modal-open {
 		while (i < $("#grid-table-laporan").getRowData().length){
 			rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
 			if(rowId == -1){
-				$('#val_denda').val( $('#val_pajak').val() * 2 / 100 );
+				$('#val_denda').val( parseFloat( $('#val_pajak').val() ) * 2 / 100 );
 				break;
 			}	 			
 		i++;
 		}			
-		$('#totalBayar').val( parseFloat(parseInt($('#val_pajak').val()) + parseInt($('#val_denda').val())).toFixed(2) );
+		$('#totalBayar').val( parseFloat(  parseFloat( $('#val_pajak').val() ) + parseFloat( $('#val_denda').val() )  ).toFixed(2) );
 		i=0; k=0; j=0;;
 		dataupdate = new Array(); datecreate=new Array();
 		while (i < $("#grid-table-laporan").getRowData().length){
@@ -120,7 +132,7 @@ body.modal-open {
 			No_UrutAkhir = $('#grid-table-laporan').jqGrid('getCell',i+1,'No_UrutAkhir');
 			jum_faktur = parseInt($('#grid-table-laporan').jqGrid('getCell',i+1,'jum_faktur'));
 			jum_penjualan = parseInt($('#grid-table-laporan').jqGrid('getCell',i+1,'jum_penjualan'));
-			t_cust_dtl = parseInt($('#grid-table-laporan').jqGrid('getCell',i+1,'t_cust_acc_dtl'));
+			t_cust_dtl = $('#grid-table-laporan').jqGrid('getCell',i+1,'t_cust_acc_dtl');
 			vat_pct = parseFloat($('#val_pajak').val()) / parseFloat($('#totalBayar').val());
 			description = $('#grid-table-laporan').jqGrid('getCell',i+1,'descript');
 			if(keyidchecker == -1){
@@ -128,7 +140,7 @@ body.modal-open {
 					't_cust_acc_dtl_trans_id' : 0,
 					'p_vat_type_dtl_id' : '<?php echo $this->session->userdata('vat_type_dtl'); ?>',	
 					'npwd' : '<?php echo $this->session->userdata('npwd'); ?>',	
-					't_cust_account_id' : '<?php echo $this->session->userdata('cust_account_id'); ?>',	
+					't_cust_account_id' : <?php echo $this->session->userdata('cust_account_id'); ?>,	
 					'trans_date' : Tanggal,	
 					'trans_date_txt' : '',	
 					'bill_no' : No_UrutAwal,	
@@ -280,21 +292,26 @@ body.modal-open {
 			},
 			success: function (response) 
 			{				
-				i = 0;				
+				i = 0; 		
 				var data = $.parseJSON(response);
-				// alert(data.rows[i].service_charge);
-				// alert(data.rows.length);
-				if(data.records > 0){
-					while(i < diffDays+1 && i<data.rows.length)
-					{	
-							// alert(data.rows[i].service_charge);
-							mydata[i].jum_penjualan = data.rows[i].service_charge;
-							mydata[i].descript = data.rows[i].description;
-							mydata[i].jum_faktur = data.rows[i].bill_count;
-							mydata[i].No_UrutAwal = data.rows[i].bill_no;
-							mydata[i].No_UrutAkhir = data.rows[i].bill_no_end;
-							mydata[i].t_cust_acc_dtl = data.rows[i].t_cust_acc_dtl_trans_id;
-							mydata[i].t_cust_account = data.rows[i].t_cust_account_id;
+				if(data.rows.length > 0){
+					while( i < mydata.length)
+					{	k=0;	
+						while( k < data.rows.length)
+						{
+							if(mydata[i].Tanggal == data.rows[k].trans_date_jqgrid)
+							{
+								// alert(mydata[i].Tanggal +' == '+ data.rows[k].trans_date_jqgrid);
+								mydata[i].jum_penjualan = 	data.rows[k].service_charge;
+								mydata[i].descript 		= 	data.rows[k].description;
+								mydata[i].jum_faktur 	= 	data.rows[k].bill_count;
+								mydata[i].No_UrutAwal 	= 	data.rows[k].bill_no;
+								mydata[i].No_UrutAkhir 	= 	data.rows[k].bill_no_end;
+								mydata[i].t_cust_acc_dtl= 	data.rows[k].t_cust_acc_dtl_trans_id;
+								mydata[i].t_cust_account= 	data.rows[k].t_cust_account_id;	
+							}								
+						k++;
+						}							
 					i++;
 					}
 				}// else
@@ -302,8 +319,7 @@ body.modal-open {
 					
 				// }
 			}
-		});
-				
+		});		
 		$('#grid-table-laporan').trigger( 'reloadGrid' );
 		jQuery("#grid-table-laporan").jqGrid('setGridParam',
 				{ 

@@ -57,7 +57,7 @@
 				<input class="col-md-2 date-picker" type="text" id="datepicker2" readonly="">
 			</div>
 				<div class="row top-buffer">
-				<a class="col-md-2 col-md-offset-3 btn btn-primary" style="font-size:10px">Upload File Transaksi</a>
+				<a class="col-md-2 col-md-offset-3 btn btn-primary" style="font-size:10px" id="isiformupload">Upload File Transaksi</a>
 				<label class="col-md-1">atau</label>
 				<a class="col-md-2 btn btn-primary" style="font-size:10px" id="isiformtransaksi">Isi Form Transaksi</a>
 			</div>
@@ -87,6 +87,7 @@
 	</div><!-- /.end modal -->
 
 <?php  $this->load->view('pelaporan/lov_form_harian.php'); ?>
+<?php  $this->load->view('pelaporan/lov_upload_file.php'); ?>
 
 <script>
 	$(document).ready(function(){
@@ -110,8 +111,8 @@
 					var data1 = $.parseJSON(response);
 					i=0;
 					if (data1.rows.length >0){
-						while(i<=data1.rows.length){
-							$('#rincian').append('<option value='+ data1.rows[0].vat_code +' data-id='+ data1.rows[0].vat_pct +'>'+ data1.rows[0].vat_code +'</option>');
+						while(i<data1.rows.length){
+							$('#rincian').append('<option value="'+ data1.rows[i].vat_code +'" data-id='+ data1.rows[i].vat_pct +'>'+ data1.rows[i].vat_code +'</option>');
 						i++;	
 						}
 					} else{
@@ -161,7 +162,7 @@
 	$('#isiformtransaksi').on('click',function() {
 		var date = $("#datepicker").datepicker('getDate');
 		var date1 = $("#datepicker2").datepicker('getDate');
-		var dates = $("#datepicker2").val();
+		var dates = $("#datepicker").val();
 		var dates1 = $("#datepicker2").val();
 		var datesFormat = moment(date).format('YYYY-MM-DD');
 		var dates1Format = moment(date1).format('YYYY-MM-DD');
@@ -182,6 +183,9 @@
 		}
 		
     });
+	$('#isiformupload').on('click',function() {			
+		modal_upload_file_show('','','');				
+    });
 	
 	$('#submit-btn').on('click',function() {
 		items = new Array();
@@ -189,7 +193,7 @@
 		({
 					'user_name' : '<?php echo $this->session->userdata('user_name'); ?>',
 					'npwd' : '<?php echo $this->session->userdata('npwd'); ?>',	
-					't_cust_account_id' : '<?php echo $this->session->userdata('cust_account_id'); ?>',	
+					't_cust_accounts_id' : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),	
 					'finance_period' : $('#months').find(':selected').data("idkey"),	
 					'p_vat_type_dtl_id' : <?php echo $this->session->userdata('vat_type_dtl'); ?>,	
 					'p_vat_type_dtl_cls_id' : '',	
@@ -219,7 +223,7 @@
 				{
 					end_period : moment($('#datepicker2').val()).format('DD-MM-YYYY'),
 					items: JSON.stringify(items),
-					t_cust_account_id : '<?php echo $this->session->userdata('cust_account_id'); ?>',
+					t_cust_account_id : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),
 					npwd : '<?php echo $this->session->userdata('npwd'); ?>',
 					p_finance_period : $('#months').find(':selected').val(),
 					p_vat_type_dtl_cls_id : '',
@@ -234,7 +238,13 @@
 				},
             success: function (response) 
 				{
-				
+					var data = $.parseJSON(response);
+					// alert(.toSource());
+					// alert(response.items[0]);
+					// alert(data);
+					// alert(data.rows[0]);
+					// alert(data.rows[0].message);
+					swal('info',data.items.o_mess,'info');
 				}
         });
 	});

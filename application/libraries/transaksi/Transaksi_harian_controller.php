@@ -40,7 +40,7 @@ class Transaksi_harian_controller {
 
             $req_param['where'] = array();
 			$table->setCriteria("
-			t_cust_acc_dtl_trans.t_cust_account_id > ". $ci->session->userdata('cust_account_id') ." AND 
+			t_cust_acc_dtl_trans.t_cust_account_id = ". $ci->session->userdata('cust_account_id') ." AND 
 			trans_date >= CASE
 					WHEN  t_vat_setllement.start_period is null THEN p_finance_period.start_date
 					ELSE t_vat_setllement.start_period
