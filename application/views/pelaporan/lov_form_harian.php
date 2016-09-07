@@ -1,11 +1,4 @@
 <script type="text/javascript" src="<?php echo base_url(); ?>/assets/global/plugins/moment.min.js"></script>
-<style>
-.top-buffer { margin-top:7px; }
-
-body.modal-open {
-    overflow: hidden;
-}
-</style>
 <div id="modal_lov_form_harian" class="modal fade"  tabindex="-1">
     <div class="modal-dialog" style="width:960px;">
         <div class="modal-content">
@@ -21,7 +14,7 @@ body.modal-open {
 
 
             <!-- modal body -->
-            <div class="modal-body" style="overflow-y:hidden;">
+            <div class="modal-body" style="overflow-y:scroll;height:300px;">
 			
 				<div class="tab-pane active">
 					<table id="grid-table-laporan"></table>
@@ -33,11 +26,11 @@ body.modal-open {
             <div class="modal-footer no-margin-top">
                 <div class="bootstrap-dialog-footer">
                     <div class="bootstrap-dialog-footer-buttons">
-                        <button class="btn btn-default btn-xs radius-4" id="simpan">
+                        <button class="btn btn-default btn-md radius-4" id="simpan">
                             <i class="ace-icon fa fa-floppy"></i>
                             Simpan
                         </button>
-						<button class="btn btn-danger btn-xs radius-4" data-dismiss="modal" id="exitmodal">
+						<button class="btn btn-danger btn-md radius-4" data-dismiss="modal" id="exitmodal">
                             <i class="ace-icon fa fa-times"></i>
                             Close
                         </button>						
@@ -82,6 +75,7 @@ body.modal-open {
 							}
 						});			
 					}
+					$('#modal_lov_form_harian').modal('hide');
 			}
 		});
 		
@@ -97,32 +91,30 @@ body.modal-open {
 				success: function (response) {
 					var data = $.parseJSON(response);
 					if(parseInt(data.rows[0].booldenda) >= 0){
-						if(parseInt($('#val_pajak').val()) <= 0 )
-						{
+						// if(parseFloat($('#val_pajak').val()) > 0 )
+						// {	
 							
-							alert('nol');
-						} else
-						{						
-							alert(parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2));
-							$('#val_denda').val( parseFloat(2 / 100 * parseInt($('#val_pajak').val())).toFixed(2) );
-						}						
+							// alert(parseFloat(2 / 100 * parseFloat($('#val_pajak').val() )).toFixed(2));
+							$('#val_denda').val( parseFloat(0.02 * $('#val_pajak').val()).toFixed(2));
+						// }						
 					}else
 					{
-						$('#val_denda').val(parseInt(0));
+							$('#val_denda').val(parseFloat(0));
 					};
 				}
 			});		
 		// Hitung Denda
-		i = 0; val_akhir = 0; val_denda = 0; va = $('#val_pajak').val();
-		while (i < $("#grid-table-laporan").getRowData().length){
-			rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
-			if(rowId == -1){
-				$('#val_denda').val( parseFloat( $('#val_pajak').val() ) * 2 / 100 );
-				break;
-			}	 			
-		i++;
-		}			
-		$('#totalBayar').val( parseFloat(  parseFloat( $('#val_pajak').val() ) + parseFloat( $('#val_denda').val() )  ).toFixed(2) );
+		i = 0; val_akhir = 0; val_denda = 0;
+		// while (i < $("#grid-table-laporan").getRowData().length){
+			// rowId = $('#grid-table-laporan').jqGrid('getCell',i,'keyid');
+			// if(rowId == -1){
+				// alert( parseFloat($('#val_pajak').val() ) );
+				// $('#val_denda').val( parseFloat( $('#val_pajak').val() ) * 2 / 100 );
+				// break;
+			// }	 			
+		// i++;
+		// }			
+		$('#totalBayar').val( parseFloat(   $('#val_pajak').val()  + $('#val_denda').val()   ).toFixed(2) );
 		i=0; k=0; j=0;;
 		dataupdate = new Array(); datecreate=new Array();
 		while (i < $("#grid-table-laporan").getRowData().length){
@@ -197,7 +189,7 @@ body.modal-open {
 							
 						}
 				});
-			};
+			}
 		if(k>0)
 			{
 				$.ajax
@@ -217,7 +209,7 @@ body.modal-open {
 							
 						}
 				});
-			};		
+			}		
 	});
 
     jQuery(function($) {
@@ -286,8 +278,8 @@ body.modal-open {
 			datatype: "json",            
 			type: "POST",
 			data: {	t_cust_account_id:'<?php echo $this->session->userdata('cust_account_id'); ?>',
-					start_period : dateFormatted1+ ' 00:00:00',
-					end_period : dateFormatted2+ ' 00:00:00',
+					start_period : dateFormatted1,
+					end_period : dateFormatted2,
 					vat_type_dtl :'<?php echo $this->session->userdata('vat_type_dtl'); ?>'
 			},
 			success: function (response) 
@@ -338,34 +330,16 @@ body.modal-open {
 				data: mydata,
 				datatype: "local",
 				// mtype: "POST",
-				colNames: ["keyid","t_cust_acc_dtl","t_cust_account","Tanggal","No. Urut Faktur Awal", "No. Urut Faktur Akhir","Jumlah Faktur","Jumlah Penjualan","Deskripsi"],			
+				colNames: ["keyid","t_cust_acc_dtl","t_cust_account","Tanggal","No. Urut Faktur Awal", "No. Urut Faktur Akhir","Jml.Faktur","Jml.Penjualan","Deskripsi"],			
 				colModel: [
 					{label: 'keyid', name: 'keyid', hidden: true, cellEdit: true},					              
 					{label: 't_cust_acc_dtl_id', name: 't_cust_acc_dtl', hidden: true, cellEdit: false},					              
 					{label: 't_cust_account_id', name: 't_cust_account', hidden: true, cellEdit: false},					              
-					{label: 'Tanggal', name: 'Tanggal', hidden: false, cellEdit: false},              
-					{label: 'No. Urut Faktur Awal', name: 'No_UrutAwal', hidden: false, editable: true, cellEdit: true},               
-					{label: 'No. Urut Faktur Akhir', name: 'No_UrutAkhir', hidden: false, editable: true, cellEdit: true},
-					{label: 'Jumlah Faktur', name: 'jum_faktur', hidden: false, editable: true, cellEdit: true, editrules:{number:true},
-						// editoptions: { dataInit: function (elem) 
-							// { 
-								// $(elem).numeric(/*some optional parameters*/); 
-							// }
-						// },
-						// dataEvents: 
-						// [
-							// { 
-								// type: 'keydown', 
-								// fn: function(e) { 
-									// var key = e.charCode || e.keyCode;
-									// if (key == 13)//enter
-									// {
-										// setTimeout("jQuery('#grid-table-laporan').editCell(" + selIRow + " + 1, " + selICol + ", true);", 100);
-									// }
-								// }
-							// } 
-						// ]
-						 edittype:"text", editoptions:
+					{label: 'Tanggal', name: 'Tanggal', width:100, hidden: false,align:'center', cellEdit: false},              
+					{label: 'No. Urut Faktur Awal', width:170, name: 'No_UrutAwal', align:'right', hidden: false, editable: true, cellEdit: true},               
+					{label: 'No. Urut Faktur Akhir', width:170, name: 'No_UrutAkhir', align:'right', hidden: false, editable: true, cellEdit: true},
+					{label: 'Jml.Faktur', name: 'jum_faktur', width:120, hidden: false, align:'right', formatter:'currency', formatoptions: {thousandsSeparator : '.', decimalPlaces: 0},  editable: true, cellEdit: true, editrules:{number:true},
+						edittype:"text", editoptions:
 						{
 							size: 25, maxlengh: 30,
 							dataInit: function(element) 
@@ -378,9 +352,8 @@ body.modal-open {
 								});
 							}
 						}
-        // },
 					},
-					{label: 'Jumlah Penjualan', name: 'jum_penjualan', hidden: false, editable: true, cellEdit: true, editrules:{number:true},
+					{label: 'Jml.Penjualan', name: 'jum_penjualan', width:150, hidden: false, align:'right',editable: true, cellEdit: true, editrules:{number:true},
 						// editoptions: { dataInit: function (elem) 
 							// { 
 								// $(elem).numeric(/*some optional parameters*/); 
@@ -400,10 +373,10 @@ body.modal-open {
 							}
 						}
 					},
-					{label: 'Deskripsi', name: 'descript', hidden: false, editable: true, cellEdit: true}                
+					{label: 'Deskripsi', name: 'descript', hidden: false, editable: true, align:'center',cellEdit: true}                
 				],
 				height: '100%',
-				width:900,
+				width:700,
 				autowidth: false,
 				viewrecords: true,
 				rowNum: 100,
@@ -481,14 +454,14 @@ body.modal-open {
 			});
 			jQuery('#grid-table-laporan').jqGrid('navGrid', '#grid-pager-laporan',
 				{   //navbar options
-					edit: true,
+					edit: false,
 					excel: true,
 					editicon: 'fa fa-pencil blue bigger-120',
-					add: true,				
+					add: false,				
 					addicon: 'fa fa-plus-circle purple bigger-120',
-					del: true,
+					del: false,
 					delicon: 'fa fa-trash-o red bigger-120',
-					search: true,
+					search: false,
 					searchicon: 'fa fa-search orange bigger-120',
 					refresh: true,
 					afterRefresh: function () {
@@ -516,7 +489,7 @@ body.modal-open {
 	
 					},
 					afterShowForm: function(form) {
-						form.closest('.ui-jqdialog').center();
+						
 					},
 					afterSubmit:function(response,postdata) {
 						var response = jQuery.parseJSON(response.responseText);
@@ -548,7 +521,7 @@ body.modal-open {
 						style_edit_form(form);
 					},
 					afterShowForm: function(form) {
-						form.closest('.ui-jqdialog').center();
+						
 					},
 					afterSubmit:function(response,postdata) {
 						var response = jQuery.parseJSON(response.responseText);
@@ -574,7 +547,7 @@ body.modal-open {
 	
 					},
 					afterShowForm: function(form) {
-						form.closest('.ui-jqdialog').center();
+						
 					},
 					onClick: function (e) {
 					},
@@ -591,9 +564,7 @@ body.modal-open {
 					closeAfterSearch: false,
 					recreateForm: true,
 					afterShowSearch: function (e) {
-						var form = $(e[0]);
-						style_search_form(form);
-						form.closest('.ui-jqdialog').center();
+						
 					},
 					afterRedraw: function () {
 						style_search_filters($(this));
@@ -681,7 +652,7 @@ body.modal-open {
 	function responsive_jqgrid(grid_selector, pager_selector) {
 
 		var parent_column = $(grid_selector).closest('[class*="col-"]');
-		$(grid_selector).jqGrid( 'setGridWidth', $(".modal-body").width() );
+		$(grid_selector).jqGrid( 'setGridWidth', $(".modal-body").width()-20 );
 		$(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
 
 	}

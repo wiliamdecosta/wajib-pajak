@@ -259,7 +259,7 @@ class Spreadsheet_Excel_Reader
      */ 
     function Spreadsheet_Excel_Reader()
     {
-        $this->_ole =& new OLERead();
+        $this->_ole = new OLERead();
         $this->setUTFEncoder('iconv');
     }
 
@@ -627,6 +627,7 @@ class Spreadsheet_Excel_Reader
                                     );
                         }else{
                             $isdate = FALSE;
+							$formatstr =  '';
                             if ($indexCode > 0){
                                 if (isset($this->formatRecords[$indexCode]))
                                     $formatstr = $this->formatRecords[$indexCode];

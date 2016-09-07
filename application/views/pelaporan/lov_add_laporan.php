@@ -31,57 +31,80 @@
 		<input type="hidden" id="t_cust_acc_dtl_trans_id" value="" />
 		<!-- modal body -->
 		<div class="portlet-body form">
-		
-			<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">NPWPD:</label>
-				<input class="col-md-3" value="<?php echo $this->session->userdata('user_name'); ?>">
-			</div>
-				<div class="row top-buffer">
-				<label class="col-md-2 col-md-offset-1">PERIODE:</label>
-				<select id="months" class="col-md-3"></select>
-			</div>
-				<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Klasifikasi:</label>
-				<select id="klasifikasi" class="col-md-3">
-				</select>
-			</div>
-				<div class="row  top-buffer" id="rincian_form">
-				<label class="col-md-2 col-md-offset-1">Rincian:</label>
-				<select id="rincian" class="col-md-3">
-				</select>
-			</div>
-				<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Masa Pajak:</label>
-				<input class="col-md-2 date-picker" type="text" id="datepicker" readonly=""> 
-				<label class="col-md-1">s/d</label>
-				<input class="col-md-2 date-picker" type="text" id="datepicker2" readonly="">
-			</div>
-				<div class="row top-buffer">
-				<a class="col-md-2 col-md-offset-3 btn btn-primary" style="font-size:10px" id="isiformupload">Upload File Transaksi</a>
-				<label class="col-md-1">atau</label>
-				<a class="col-md-2 btn btn-primary" style="font-size:10px" id="isiformtransaksi">Isi Form Transaksi</a>
-			</div>
-			<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Nilai Omzet:</label>
-				<input class="col-md-3" readonly="" id="omzet_value"  style="text-align:right;">
-			</div>
-				<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Pajak yang Harus dibayar:</label>
-				<input class="col-md-3" readonly=""  id="val_pajak" style="text-align:right;">
-			</div>
-				<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Denda:</label>
-				<input class="col-md-3" readonly="" id="val_denda" style="text-align:right;">
-			</div>
-				<div class="row  top-buffer">
-				<label class="col-md-2 col-md-offset-1">Total Bayar:</label>
-				<input class="col-md-3" readonly="" id="totalBayar" style="text-align:right;">
-			</div>
 			
-			<div class="space-4"></div>
+			<form class="form-horizontal">
+			  <div class="form-group">
+				<label class="col-md-2 control-label">NPWPD:</label>
+				<div class="col-md-3">
+				  <input type="text" class="form-control" id="npwd" readonly="" value="<?php echo $this->session->userdata('npwd'); ?>">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">PERIODE:</label>
+				<div class="col-md-3">
+				  <select id="months" class="form-control"></select>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Klasifikasi:</label>
+				<div class="col-md-3">
+				  <select id="klasifikasi" class="form-control"></select>
+				</div>
+			  </div>
+			  <div class="form-group" id="rincian_form">
+				<label class="col-md-2 control-label">Rincian:</label>
+				<div class="col-md-3">
+				  <select id="rincian" class="form-control"></select>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Masa Pajak:</label>
+				<div class="col-md-6 form-inline">
+					<input class="form-control date-picker" type="text" id="datepicker" readonly=""> 
+					<label>s/d</label>
+					<input class="form-control date-picker" type="text" id="datepicker2" readonly="">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<div class="col-md-offset-2 col-md-6 form-inline">
+					<a class="btn btn-primary" id="isiformupload">Upload File Transaksi</a>
+					<label>atau</label>
+					<a class="btn btn-primary" id="isiformtransaksi">Isi Form Transaksi</a>
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Nilai Omzet:</label>
+				<div class="col-md-3">
+				  <input class="form-control" readonly="" id="omzet_value"  style="text-align:right;">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Pajak yang Harus dibayar:</label>
+				<div class="col-md-3">
+				  <input class="form-control" readonly=""  id="val_pajak" style="text-align:right;">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Denda:</label>
+				<div class="col-md-3">
+				  <input class="form-control" readonly=""  id="val_denda" style="text-align:right;">
+				</div>
+			  </div>
+			  <div class="form-group">
+				<label class="col-md-2 control-label">Total Bayar:</label>
+				<div class="col-md-3">
+				  <input class="form-control" readonly=""  id="totalBayar" style="text-align:right;">
+				</div>
+			  </div>
+			</form>
 			
-			<div class="form-actions right">
-				<button class="btn green" type="submit" id="submit-btn">Submit</button>
+			<div class="form-actions">
+				<div class="row">
+					<div class="col-md-offset-11">
+						<button class="btn green" type="button" id="submit-btn">Submit</button>
+						<input type="hidden" id="hasExcelUploaded" value=0 />
+					</div>
+				</div>
 			</div>
 		</div>			
 	</div><!-- /.end modal -->
@@ -117,6 +140,7 @@
 						}
 					} else{
 						$('#rincian_form').hide(100);
+						$('#rincian').append('<option value="" data-id= ""></option>');
 					}					
 			}
         });
@@ -150,6 +174,11 @@
 				
 		$("#datepicker").datepicker('setDate',StartDate);
 		$("#datepicker2").datepicker('setDate',EndDate);
+		$('#omzet_value').val("");
+		$('#val_pajak').val("");
+		$('#val_denda').val("");
+		$('#totalBayar').val("");
+		
 		
 	});
 	
@@ -183,69 +212,99 @@
 		}
 		
     });
-	$('#isiformupload').on('click',function() {			
-		modal_upload_file_show('','','');				
+	$('#isiformupload').on('click',function() {
+		var dates = $("#datepicker").val();
+		var dates1 = $("#datepicker2").val();
+				
+		if ((dates.length != 0) && (dates1.length != 0)){					
+					modal_upload_file_show();				
+		} else
+		{
+			swal('error','Isi terlebih dahulu periode masa pajak secara lengkap','error');
+		}
+						
     });
 	
-	$('#submit-btn').on('click',function() {
-		items = new Array();
-		items.push 
-		({
-					'user_name' : '<?php echo $this->session->userdata('user_name'); ?>',
-					'npwd' : '<?php echo $this->session->userdata('npwd'); ?>',	
-					't_cust_accounts_id' : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),	
-					'finance_period' : $('#months').find(':selected').data("idkey"),	
-					'p_vat_type_dtl_id' : <?php echo $this->session->userdata('vat_type_dtl'); ?>,	
-					'p_vat_type_dtl_cls_id' : '',	
-					'start_period' : moment($('#datepicker').val()).format('DD-MM-YYYY'),	
-					'end_period' : moment($('#datepicker2').val()).format('DD-MM-YYYY'),	
-					'total_trans_amount' :  $('#omzet_value').val(),	
-					'total_vat_amount' : $('#totalBayar').val()
-		});	
-		// items = [];
-		// items["user_name"] = '<?php echo $this->session->userdata('user_name'); ?>';
-		// items["npwd"] = '<?php echo $this->session->userdata('npwd'); ?>';
-		// items["t_cust_account_id"] = '<?php echo $this->session->userdata('t_cust_account_id'); ?>';
-		// items["finance_period"] = $('#months').find(':selected').val();
-		// items["p_vat_type_dtl_id"] = <?php echo $this->session->userdata('vat_type_dtl'); ?>;
-		// items["p_vat_type_dtl_cls_id"] = '';
-		// items["penalty_amount"] = $('#val_denda').val();
-		// items["start_period"] = moment($('#datepicker').val()).format('YYYY-MM-DD');
-		// items["end_period"] = moment($('#datepicker2').val()).format('YYYY-MM-DD');
-		// items["total_trans_amount"] = $('#omzet_value').val();
-		// items["total_vat_amount"] = $('#totalBayar').val();
-		$.ajax
-		({
-			url: "<?php echo WS_JQGRID ?>transaksi.t_vat_settlement_controller/createSPTPD",
-			datatype: "json",            
-            type: "POST",
-			data: 
+	$('#submit-btn').on('click',function() {		
+		nilai_total = $('#totalBayar').val();
+		
+		text_submit = 	"<div align='left'><h5>Wajib Pajak yang terhormat</br>"+
+						"Anda Melaporkan pajak daerah untuk : </br>"+
+						"NPWPD 			:	"+ $('#klasifikasi').find(':selected').val() +"</br>"+
+						"Klasifikasi 	: 	"+ $('#klasifikasi').find(':selected').val() +"</br>"+
+						"Masa Pajak 	: 	"+ $('#months').find(':selected').val() +"</br>"+
+						"Pajak Pokok 	: 	Rp."+ $('#val_pajak').val() +"</br>"+
+						"Denda 			: 	Rp."+ $('#val_denda').val() +"</br>"+
+						"Jumlah Pajak yang harus dibayar 	: 	Rp."+ $('#totalBayar').val() +"</br>"+
+						"Apakah anda yakin akan mengirim laporan dimaksud?</h5></div>";
+		if(nilai_total.length == 0 && $('#hasExcelUploaded').val() == 0)
+		{
+			swal('Error','Harap mengisi data secara lengkap sebelum submit','error');
+		} else
+		{
+			swal(
+			{
+				title: "<b>Konfirmasi</b>",
+				html: text_submit,
+				type: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#DD6B55",
+				confirmButtonText: "Ya",
+				cancelButtonText: "Tidak",
+				confirmButtonClass: 'btn btn-success',
+				cancelButtonClass: 'btn btn-danger',
+				buttonsStyling: false
+				// closeOnConfirm: true,
+				// closeOnCancel: true
+			}).then	
+			(function()
 				{
-					end_period : moment($('#datepicker2').val()).format('DD-MM-YYYY'),
-					items: JSON.stringify(items),
-					t_cust_account_id : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),
-					npwd : '<?php echo $this->session->userdata('npwd'); ?>',
-					p_finance_period : $('#months').find(':selected').val(),
-					p_vat_type_dtl_cls_id : '',
-					p_vat_type_dtl_id : $('#klasifikasi').find(':selected').val(),
-					penalty_amount : $('#val_denda').find(':selected').val(),
-					percentage : 7,
-					start_period : 	moment($('#datepicker').val()).format('YYYY-MM-DD'),
-					t_cust_account_id : <?php echo $this->session->userdata('cust_account_id');?>,
-					total_amount :  $('#totalBayar').find(':selected').val(),
-					total_trans_amount : $('#omzet_value').val(),
-					total_vat_amount : $('#totalBayar').val()
+					items = new Array();
+						items.push 
+						({
+									'user_name' : '<?php echo $this->session->userdata('user_name'); ?>',
+									'npwd' : '<?php echo $this->session->userdata('npwd'); ?>',	
+									't_cust_accounts_id' : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),	
+									'finance_period' : $('#months').find(':selected').data("idkey"),	
+									'p_vat_type_dtl_id' : <?php echo $this->session->userdata('vat_type_dtl'); ?>,	
+									'p_vat_type_dtl_cls_id' : '',	
+									'start_period' : moment($('#datepicker').val()).format('DD-MM-YYYY'),	
+									'end_period' : moment($('#datepicker2').val()).format('DD-MM-YYYY'),	
+									'total_trans_amount' :  $('#omzet_value').val(),	
+									'total_vat_amount' : $('#totalBayar').val()
+						});	
+						$.ajax
+						({
+							url: "<?php echo WS_JQGRID ?>transaksi.t_vat_settlement_controller/createSPTPD",
+							datatype: "json",            
+							type: "POST",
+							data: 
+								{
+									end_period : moment($('#datepicker2').val()).format('DD-MM-YYYY'),
+									items: JSON.stringify(items),
+									t_cust_account_id : parseInt(<?php echo $this->session->userdata('cust_account_id'); ?>),
+									npwd : '<?php echo $this->session->userdata('npwd'); ?>',
+									p_finance_period : $('#months').find(':selected').val(),
+									p_vat_type_dtl_cls_id : '',
+									p_vat_type_dtl_id : <?php echo $this->session->userdata('vat_type_dtl'); ?>,
+									penalty_amount : $('#val_denda').find(':selected').val(),
+									percentage : 7,
+									start_period : 	moment($('#datepicker').val()).format('YYYY-MM-DD'),
+									t_cust_account_id : <?php echo $this->session->userdata('cust_account_id');?>,
+									total_amount :  $('#totalBayar').find(':selected').val(),
+									total_trans_amount : $('#omzet_value').val(),
+									total_vat_amount : $('#totalBayar').val()
+								},
+							success: function (response) 
+								{
+									var data = $.parseJSON(response);
+									swal('info',data.items.o_mess,'info');
+								}
+						});
 				},
-            success: function (response) 
-				{
-					var data = $.parseJSON(response);
-					// alert(.toSource());
-					// alert(response.items[0]);
-					// alert(data);
-					// alert(data.rows[0]);
-					// alert(data.rows[0].message);
-					swal('info',data.items.o_mess,'info');
-				}
-        });
+				function(dismiss) {}
+				);
+		}
+		
 	});
 </script>

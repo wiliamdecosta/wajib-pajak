@@ -23,8 +23,9 @@
 <script src="<?php echo base_url(); ?>assets/jqgrid/src/jquery.jqGrid.js" type="text/javascript"></script>
 
 <!-- begin swal -->
-<script src="<?php echo base_url(); ?>assets/swal/sweetalert.min.js"></script>
-<script src="<?php echo base_url(); ?>assets/swal/sweetalert-dev.js"></script>
+
+<script src="<?php echo base_url(); ?>assets/swal2/sweetalert2.min.js"></script>
+
 <!-- end swal -->
 
 <script src="<?php echo base_url(); ?>assets/bootgrid/jquery.bootgrid.min.js"></script>

@@ -464,9 +464,26 @@ class T_vat_settlement_controller {
 	public static function upload_excel($args = array()){
 		$data = array('success' => false, 'message' => '');
 		//memanggil perintah sql delete DSR
+		$ci = & get_instance();
+		$ci->load->model('transaksi/t_vat_settlement');
+		$table= $ci->t_vat_settlement;
+		
+		$t_cust_account_id = $table->session->userdata('cust_account_id');
+		$start_period = getVarClean('start_period','str','');
+		$end_period = getVarClean('end_period','str','');
+		$p_vat_type_dtl_id = getVarClean('p_vat_type_dtl_id','int','');
+		$p_vat_type_dtl_cls_id = getVarClean('p_vat_type_dtl_id','int','');
 		
 		global $_FILES;
 		try {
+			
+			$sql = "DELETE FROM t_cust_acc_dtl_trans a
+					WHERE a.t_cust_account_id = ". $t_cust_account_id ."
+					and not exists (select 1 
+						from t_vat_setllement_dtl x 
+							where x.t_cust_acc_dtl_trans_id = a.t_cust_acc_dtl_trans_id)";
+			$result = $table->db->query($sql);
+			
 			if(empty($_FILES['excel_trans_cust']['name'])){
 				throw new Exception('File tidak boleh kosong');
 			}
@@ -488,10 +505,74 @@ class T_vat_settlement_controller {
 					exit;
 				}
 			}
+
+			$xl_reader->read($file_location);
+			$firstColumn = $xl_reader->sheets[0]['cells'][1][2];
 			
+			$jumlah_hari = substr($end_period,8,2) - substr($start_period,8,2) + 1;
+			$tahun_bulan = substr($start_period,0,8);			
+
+			if ($jumlah_hari != ($xl_reader->sheets[0]['numRows']-3)) {
+				throw new Exception("Laporan masa pajak anda ini tidak sesuai dengan Laporan Rekapitulasi Penerimaan Harian");
+			};
 			
+			$items = array();	
+			$loop_hari = 1;
+			for($i = 3; $i < $xl_reader->sheets[0]['numRows']; $i++) {
+				$temp_date = $tahun_bulan.sprintf("%02d", ($i-3+substr($start_period,8,2)));
+				// print_r($temp_date);exit;
+				if ($temp_date != $xl_reader->sheets[0]['cells'][$i][1]){					
+					throw new Exception("Laporan masa pajak anda ini tidak sesuai dengan Laporan Rekapitulasi Penerimaan Harian");
+				}
 			
-			
+				if($loop_hari <= $jumlah_hari) {
+					$item['t_cust_account_id'] = $t_cust_account_id; 
+					$item['i_tgl_trans'] =  $xl_reader->sheets[0]['cells'][$i][1]; 	
+					$bills = explode("-", $xl_reader->sheets[0]['cells'][$i][2]);
+					$item['i_bill_no'] =  $bills[0];
+					$item['i_bill_no_end'] =  $bills[1];
+					$item['i_bill_count'] =  $xl_reader->sheets[0]['cells'][$i][3];
+					$item['i_serve_desc'] =  '';
+					$item['i_serve_charge'] =  $xl_reader->sheets[0]['cells'][$i][4];
+					$i_vat_charge = $xl_reader->sheets[0]['cells'][$i][4];
+					$item['i_vat_charge'] = "null";
+					$item['i_desc'] = $xl_reader->sheets[0]['cells'][$i][5];   
+					$item['p_vat_type_dtl_id'] = $p_vat_type_dtl_id;                
+					$item['p_vat_type_dtl_cls_id'] = $p_vat_type_dtl_cls_id;                
+					$items[] = $item;
+					$loop_hari++;
+				}
+			}
+
+			$numItems = count($items);
+			for($i=0; $i < $numItems; $i++)
+			{
+				$table->db->trans_begin();
+				
+				$tgl_trans 		= $items[$i]["i_tgl_trans"];
+				$bill_no 		= $items[$i]["i_bill_no"];
+				$bill_no_end 	= $items[$i]["i_bill_no_end"];
+				$bill_count 	= $items[$i]["i_bill_count"];
+				$serve_desc 	= $items[$i]["i_serve_desc"];
+				$serve_charge 	= $items[$i]["i_serve_charge"];
+				$description 	= $items[$i]["i_desc"];
+				
+				$ci->db->query("select o_result_code, o_result_msg from \n" .
+                      "f_ins_cust_acc_dtl_trans_v2(" . $items[$i]["t_cust_account_id"]. ",\n" .
+                      "                         '" . $tgl_trans . "',\n" .
+                      "                         '" . $bill_no. "',\n" .
+                      "                         '" . $serve_desc. "',\n" .
+                      "                         " . $serve_charge. ",\n" .
+                      "                         null,\n" .
+                      "                         '" . $description. "',\n" .
+                      "                         '" . $ci->session->userdata('user_name'). "',\n" .
+                      "                         '" . $p_vat_type_dtl_id. "',\n" .
+                      "                         case when " . $p_vat_type_dtl_cls_id. " = 0 then null else " . $p_vat_type_dtl_cls_id. " end,".
+				"                         " . $bill_count. ",".
+				"                         '" . $bill_no_end. "')");
+					
+				$table->db->trans_commit(); 
+			};
 			
 			$data['success'] = true;
 			$data['message'] = 'Upload file transaksi berhasil dilakukan';

@@ -82,12 +82,12 @@ class Cust_acc_trans_controller {
 	
 	
 	function read_acc_trans() {
-		
+		$ci = & get_instance();
 		$sidx = getVarClean('sidx','str','t_cust_acc_dtl_trans_id');
         $sord = getVarClean('sord','str','desc');
 	
 		
-        $p_vat_id = getVarClean('vat_type_dtl','int',0);        
+        $p_vat_type_dtl_id = getVarClean('p_vat_type_dtl_id','int',$ci->session->userdata('vat_type_dtl'));        
         $start_period = getVarClean('start_period','str','');        
         $end_period = getVarClean('end_period','str','');            
 
@@ -96,12 +96,12 @@ class Cust_acc_trans_controller {
         try {
 			
 			
-            $ci = & get_instance();
+            
             $ci->load->model('transaksi/cust_acc_trans');
             $table= $ci->cust_acc_trans;
 						
            // $table = $tables->transaction_query;
-			$table->setCriteria('p_vat_type_dtl_id = '. $p_vat_id);
+			$table->setCriteria('p_vat_type_dtl_id = '. $p_vat_type_dtl_id);
 			$table->setCriteria( " (trunc(trans_date) BETWEEN '".$start_period."' AND '".$end_period."') ");
 			if(empty($trans_date)){
         	    $trans_date = 'null';
@@ -113,14 +113,33 @@ class Cust_acc_trans_controller {
                       left join p_finance_period on p_finance_period.start_date <= trans_date and p_finance_period.end_date >= trans_date
                       ".$table->getCriteriaSQL()." ORDER BY ". $sidx ." ". $sord;
 			$temp_row = $table->db->query($query);
-		    $items = $temp_row->result_array();
-			$querycount = "SELECT COUNT(1) from sikp.f_get_cust_acc_dtl_trans_v2(". $ci->session->userdata('cust_account_id') .",$trans_date) ".$table->getCriteriaSQL();
-            $countitemsq = $table->db->query($querycount);
-			$countitems = $countitemsq->row_array();
+			// print_r($query);
+		    $items_from_db = $temp_row->result_array();
+			// $querycount = "SELECT COUNT(1) as total from sikp.f_get_cust_acc_dtl_trans_v2(". $ci->session->userdata('cust_account_id') .",$trans_date) ".$table->getCriteriaSQL();
+            // $countitemsq = $table->db->query($querycount);
+			// $countitems = $countitemsq->row_array();
+			
+			$items = array();
+			for ($i = 0 ; $i < substr($end_period,8,2);$i++){
+				$item_transdate = date('Y-m-d',strtotime("+".$i." day",strtotime(substr($start_period,0,10))));
+				$items[$i] = array('trans_date' => $item_transdate, 
+						't_cust_acc_dtl_trans_id' => '', 't_cust_account_id' => $ci->session->userdata('cust_account_id'), 'bill_no' => '',
+						'bill_no_end' => '','bill_count' => '',
+						'service_desc' => '','service_charge' => '','vat_charge' => '','description' => '',
+						'p_vat_type_dtl_id' => $p_vat_type_dtl_id,'p_finance_period_id' => '');
+				
+				
+				foreach($items_from_db as $item){
+					if($item_transdate == $item['trans_date']){
+						$items[$i] = $item;
+					}
+				}
+			}
+			
 
             $data['page'] = 1;
             $data['total'] = 1;
-            $data['records'] = $countitems;
+            $data['records'] = count($items);
 
             $data['rows'] = $items;
             $data['success'] = true;
@@ -351,8 +370,8 @@ class Cust_acc_trans_controller {
 
     function destroy() {
         $ci = & get_instance();
-        $ci->load->model('pelaporan/pelaporan_bulan');
-        $table = $ci->users;
+        $ci->load->model('transaksi/cust_acc_trans');
+        $table = $ci->cust_acc_trans;
 
         $data = array('rows' => array(), 'page' => 1, 'records' => 0, 'total' => 1, 'success' => false, 'message' => '');
 

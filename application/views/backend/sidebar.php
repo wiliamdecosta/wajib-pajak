@@ -55,7 +55,7 @@
         </a>
     </li>
 
-    <li class="nav-item" data-source="message.inbox_message">
+   <!-- <li class="nav-item" data-source="message.inbox_message">
         <a href="#" class="nav-link nav-toggle">
             <i class="fa fa-inbox"></i>
             <span class="title">Inbox</span>
@@ -67,7 +67,7 @@
             <i class="fa fa-envelope-o"></i>
             <span class="title">Outbox</span>
         </a>
-    </li>
+    </li> !-->
 
 
 

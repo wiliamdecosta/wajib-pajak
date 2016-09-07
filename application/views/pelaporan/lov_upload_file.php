@@ -7,7 +7,7 @@
 					<span class="form-add-edit-title"> Upload File </span>
 				</div>
 			</div>
-            
+			            
 			<!-- modal body -->
 			<form method="post" action="" id="form-upload-file" enctype="multipart/form-data">
 			<input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
@@ -45,11 +45,31 @@
 </div><!-- /.end modal -->
 
 <script>
+	function modal_upload_file_show(){
+		$("#modal_upload_file").modal("toggle");
+	};
 
     $('#form-upload-file').submit(function(e){
 		var url_submit = "<?php echo WS_JQGRID.'transaksi.t_vat_settlement_controller/upload_excel'; ?>"
 		var formData = new FormData($(this)[0]);
 		
+		var date = $("#datepicker").datepicker('getDate');
+		var date1 = $("#datepicker2").datepicker('getDate');
+		var start_period = moment(date).format('YYYY-MM-DD');
+		var end_period = moment(date1).format('YYYY-MM-DD');
+		
+		formData.append('start_period', start_period);
+		formData.append('end_period', end_period);
+		formData.append('p_vat_type_dtl_id', <?php echo $this->session->userdata('vat_type_dtl') ?>);
+		if ($('#rincian').find(':selected').val() != "")
+		{
+			formData.append('p_vat_type_dtl_cls_id',$('#rincian').find(':selected').val() );
+		} else 
+		{
+			formData.append('p_vat_type_dtl_cls_id', '');
+		}
+		
+				
 		$.ajax({
 			url: url_submit,
 			type:'POST',
@@ -57,6 +77,9 @@
 			data: formData,
 			success: function(response) {
 				swal('Informasi',response.message,'info');
+				if (response.success == true){
+					$('#hasExcelUploaded').val(1);
+				}
 			},
 			cache:false,
 			contentType:false,

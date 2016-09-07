@@ -15,8 +15,8 @@
 <div class="space-4"></div>
 
 <div>
-	<div class="tab-content">
-		<div class="tab-pane active">
+	<div class="row">
+		<div class="col-md-12">
 			<table id="grid-table-trans"></table>
 			<div id="grid-pager-trans"></div>
 		</div>
@@ -24,8 +24,8 @@
 	
 	<div class="space-4"></div>
 	
-	<div class="tab-content">
-		<div class="tab-pane active" id="tabledetails" style="display:none">
+	<div class="row">
+		<div class="col-md-12" id="tabledetails" style="display:none">
 			<table id="grid-table-detail"></table>
 			<div id="grid-pager-detail"></div>
 		</div>
@@ -43,14 +43,24 @@
             datatype: "json",
             mtype: "POST",
 			colModel: [
-                {label: 'Bulan', name: 'code', hidden: false},                
-                {label: 'Masa Pajak', name: 'start_period', hidden: false},                
-                {label: 'p_vat', name: 'p_vat_type_dtl_id', hidden: false},                
-                {label: 'Status', name: '', hidden: false, editable: true},
-                {label: 'Jumlah Transaksi', name: 'jum_trans', hidden: false, editable: true},
-                {label: 'Jumlah Pajak', name: 'jum_pajak', hidden: false, editable: true},                
-                {label: 'Start Date', name: 'start_period', hidden: false, editable: true},               
-                {label: 'End Date', name: 'end_period', hidden: false, editable: true}                
+                {label: 'Bulan', name: 'code', align:'center',hidden: false},                
+                {label: 'Masa Pajak', name: '', width:180, align:'center',hidden: false, formatter:function(cellvalue, options, rowObject){
+					return rowObject['start_period'] + ' s.d ' + rowObject['end_period'];
+				}},                
+                {label: 'p_vat', name: 'p_vat_type_dtl_id', hidden: true},                
+                {label: 'Status', name: 'p_order_status_id', hidden: false, width:200, editable: true, align:'center', formatter:function(cellvalue, options, rowObject){
+					if(cellvalue == "" || cellvalue == null){
+						return 'Laporan Belum Dikirim';
+					}else if(cellvalue == 1 || cellvalue == 2){
+						return 'Belum Verifikasi';
+					}else if(cellvalue == 3){
+						return 'Sudah Verifikasi';
+					}
+				}},
+                {label: 'Jumlah Transaksi (Rp)', name: 'jum_trans', width:200, hidden: false, formatter:'currency', formatoptions: {thousandsSeparator : '.', decimalPlaces: 0}, align:'right',editable: true},
+                {label: 'Jumlah Pajak (Rp)' , name: 'jum_pajak', width:150, hidden: false, formatter:'currency', formatoptions: {thousandsSeparator : '.', decimalPlaces: 0}, align:'right', editable: true},                
+                {label: 'Start Date', name: 'start_period', hidden: true, align:'center', editable: true},               
+                {label: 'End Date', name: 'end_period', hidden: true, align:'center', editable: true}                
 			],
             height: '100%',
             autowidth: true,
@@ -60,7 +70,7 @@
             rownumbers: true, // show row numbers
             rownumWidth: 35, // the width of the row numbers columns
             altRows: true,
-            shrinkToFit: true,
+            shrinkToFit: false,
             multiboxonly: true,
             onSelectRow: function (rowid) {
 				
@@ -74,9 +84,9 @@
 
                 if (rowid != null) {
                     grid_id2.jqGrid('setGridParam', {
-                        url: '<?php echo WS_JQGRID."transaksi.cust_acc_trans_controller/read"; ?>',
+                        url: '<?php echo WS_JQGRID."transaksi.cust_acc_trans_controller/read_acc_trans"; ?>',
                         datatype: 'json',
-                        postData: {p_vat_id: celValue,start_period: celValue1,end_period: celValue2}
+                        postData: {p_vat_type_dtl_id: celValue,start_period: celValue1,end_period: celValue2}
                         // userData: {row: rowid}
                     });
                     // grid_id.jqGrid('setCaption', 'Aliran Prosedur');
@@ -240,21 +250,21 @@
         var pager_selector = "#grid-pager-detail";
 
         jQuery("#grid-table-detail").jqGrid({
-            url: '<?php echo WS_JQGRID.'transaksi.cust_acc_trans_controller/read'; ?>',
             datatype: "json",
             mtype: "POST",
 			colModel: [
-                {label: 'NPWPD', name: 'code', hidden: false},                
-                {label: 'Tanggal Transaksi', name: 'trans_date', hidden: false},                
+                {label: 'idkey', name: 't_cust_acc_dtl_trans_id', key:true, hidden: true},                
+                {label: 'Tanggal Transaksi', name: 'trans_date', align:'center', hidden: false},                
                 {label: 'No Faktur', name: 'bill_no', hidden: false, editable: true},
                 {label: 'Deskripsi', name: 'service_desc', hidden: false, editable: true},
-                {label: 'Nilai Transaksi', name: 'service_charge', hidden: false, editable: true}                
+                {label: 'Nilai Transaksi (Rp)', name: 'service_charge', align:'right',hidden: false, formatter:'currency', formatoptions: {thousandsSeparator : '.', decimalPlaces: 0}, editable: true}                
 			],
             height: '100%',
-            autowidth: true,
+			width:600,
+            autowidth: false,
             viewrecords: true,
-            rowNum: 10,
-            rowList: [10,20,50],
+            rowNum: 50,
+            rowList: [50],
             rownumbers: true, // show row numbers
             rownumWidth: 35, // the width of the row numbers columns
             altRows: true,
@@ -277,8 +287,8 @@
 				responsive_jqgrid(grid_selector,pager_selector);
             },
             //memanggil controller jqgrid yang ada di controller crud
-            editurl: '',
-            caption: "Customer Details"
+            editurl: '<?php echo WS_JQGRID."transaksi.cust_acc_trans_controller/crud"; ?>',
+            caption: "Detail Transaksi Harian"
 
         });
 
@@ -289,9 +299,9 @@
                 editicon: 'fa fa-pencil blue bigger-120',
                 add: false,				
                 addicon: 'fa fa-plus-circle purple bigger-120',
-                del: false,
+                del: true,
                 delicon: 'fa fa-trash-o red bigger-120',
-                search: true,
+                search: false,
                 searchicon: 'fa fa-search orange bigger-120',
                 refresh: true,
                 afterRefresh: function () {
@@ -468,7 +478,7 @@
     function responsive_jqgrid(grid_selector, pager_selector) {
 
         var parent_column = $(grid_selector).closest('[class*="col-"]');
-        $(grid_selector).jqGrid( 'setGridWidth', $(".form-body").width() );
+        $(grid_selector).jqGrid( 'setGridWidth', $(".page-content").width() );
         $(pager_selector).jqGrid( 'setGridWidth', parent_column.width() );
 
     }

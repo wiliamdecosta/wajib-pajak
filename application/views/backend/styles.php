@@ -28,7 +28,8 @@
 <link href="<?php echo base_url(); ?>assets/css/styles.css" rel="stylesheet" type="text/css"/>
 <link href="<?php echo base_url(); ?>assets/css/jqgrid.custom.css" rel="stylesheet" type="text/css"/>
 
-<link rel="stylesheet" href="<?php echo base_url(); ?>assets/swal/sweetalert.css"/>
+
+<link rel="stylesheet" href="<?php echo base_url(); ?>assets/swal2/sweetalert2.css"/>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/bootgrid/jquery.bootgrid.css"/>
 <link rel="stylesheet" href="<?php echo base_url(); ?>assets/css/bootgrid.custom.css"/>
 <link rel="shortcut icon" href="<?php echo base_url(); ?>favicon.gif"/>

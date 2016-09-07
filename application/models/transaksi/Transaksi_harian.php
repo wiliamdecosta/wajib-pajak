@@ -40,8 +40,8 @@ class Transaksi_harian extends Abstract_model {
 							p_finance_period.p_finance_period_id,
 							p_finance_period.code,
 							t_customer_order.p_order_status_id,
-							case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END as start_period,
-                            case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END as end_period";
+							case when t_vat_setllement.start_period is null then to_char(p_finance_period.start_date,'yyyy-mm-dd') else to_char(t_vat_setllement.start_period,'yyyy-mm-dd') END as start_period,
+                            case when t_vat_setllement.end_period is null then to_char(p_finance_period.end_date,'yyyy-mm-dd') else to_char(t_vat_setllement.end_period,'yyyy-mm-dd') END as end_period";
     public $fromClause      = "t_cust_acc_dtl_trans
 							LEFT JOIN p_finance_period on to_char(trans_date, 'YYYY-MM') = to_char(p_finance_period.start_date, 'YYYY-MM')
 							LEFT JOIN t_vat_setllement on t_cust_acc_dtl_trans.t_cust_account_id = t_vat_setllement.t_cust_account_id and  p_finance_period.p_finance_period_id = t_vat_setllement.p_finance_period_id 
@@ -157,8 +157,8 @@ class Transaksi_harian extends Abstract_model {
 							p_finance_period.p_finance_period_id,
 							p_finance_period.code,
 							t_customer_order.p_order_status_id,
-							case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END,
-							case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END");
+							case when t_vat_setllement.start_period is null then to_char(p_finance_period.start_date,'yyyy-mm-dd') else to_char(t_vat_setllement.start_period,'yyyy-mm-dd') END,
+							case when t_vat_setllement.end_period is null then to_char(p_finance_period.end_date,'yyyy-mm-dd') else to_char(t_vat_setllement.end_period,'yyyy-mm-dd') END");
 
         if(count($this->jqGridParamSearch) > 0) {
             $this->db->order_by($this->jqGridParamSearch['sort_by'], $this->jqGridParamSearch['sord']);
@@ -187,7 +187,7 @@ class Transaksi_harian extends Abstract_model {
 	public function countAllData() {
 	    //$this->db->_protect_identifiers = false;
 
-		$query = "SELECT COUNT(1) AS totalcount FROM ".$this->fromClause;
+		$query = "SELECT COUNT(1) AS totalcount FROM (SELECT COUNT(1) FROM ".$this->fromClause;
 		if(count($this->joinClause) > 0) {
 
 			foreach($this->joinClause as $with) {
@@ -287,8 +287,10 @@ class Transaksi_harian extends Abstract_model {
 							p_finance_period.p_finance_period_id,
 							p_finance_period.code,
 							t_customer_order.p_order_status_id,
-							case when t_vat_setllement.start_period is null then p_finance_period.start_date else t_vat_setllement.start_period END,
-							case when t_vat_setllement.end_period is null then p_finance_period.end_date else t_vat_setllement.end_period END";
+							case when t_vat_setllement.start_period is null then to_char(p_finance_period.start_date,'yyyy-mm-dd') else to_char(t_vat_setllement.start_period,'yyyy-mm-dd') END,
+							case when t_vat_setllement.end_period is null then to_char(p_finance_period.end_date,'yyyy-mm-dd') else to_char(t_vat_setllement.end_period,'yyyy-mm-dd') END
+					)
+							";
 		$query = $this->db->query($query);		
 		$row = $query->row_array();
 
